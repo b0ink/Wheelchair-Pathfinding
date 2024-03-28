@@ -1,25 +1,195 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import Plot from "react-plotly.js";
+import { useEffect, useState, useMemo } from "react";
+
+import update from "immutability-helper";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [traces, setTraces] = useState([]);
+    const [token, setToken] = useState(null);
+
+    //   nodeTraces = labeledNodes.map((node) => ({
+    //     type: "scattermapbox",
+    //     mode: "markers",
+    //     lon: [node.coordinate.long],
+    //     lat: [node.coordinate.lat],
+    //     marker: {
+    //         size: 15,
+    //         color: "blue",
+    //     },
+    //     text: node.label,
+    //     name: node.label, // Set the name to the node label
+    // }));
+
+    
+
+
+    // const layout = {
+      const [layout, setLayout] = useState({
+        autosize: false,
+        width: 1200,
+        height: 900,
+        margin: {
+            l: 50,
+            r: 50,
+            b: 100,
+            t: 100,
+            pad: 4,
+        },
+        hovermode: "closest",
+        mapbox: {
+            style: "open-street-map",
+            center: { lon: 145.1155302, lat: -37.8480303 },
+            zoom: 15,
+        },
+    });
+
+    // const [figure, setFigure] = useState({ data: [], layout: layout });
+
+    class Node {
+        constructor(id, lon, lat) {
+            this.id = id;
+            this.coordinates = { lon, lat };
+            this.neighbors = [];
+        }
+        addNeighbor(neighborNode) {
+            this.neighbors.push(neighborNode);
+        }
+    }
+
+    class Path {
+        constructor(startNode, endNode, cost) {
+            this.startNode = startNode;
+            this.endNode = endNode;
+            this.cost = cost;
+        }
+    }
+
+    var gNodes = [];
+    var gPaths = [];
+
+    function GetNodeById(id) {
+        for (let node of gNodes) {
+            if (node.id == id) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    var nodeTraces;
+    const [revision, setRevision] = useState(0);
+
+    const getData = async () => {
+        const response = await fetch("/data.json");
+        const data = await response.json();
+
+        const nodes = data.nodes;
+        const paths = data.paths;
+
+        for (let node of nodes) {
+            gNodes.push(
+                new Node(node.id, node.coordinate.long, node.coordinate.lat)
+            );
+        }
+
+        for (let path of paths) {
+            let node1 = GetNodeById(path.nodeID1);
+            let node2 = GetNodeById(path.nodeID2);
+            node1.addNeighbor(node2);
+            node2.addNeighbor(node1);
+            // console.log(node1, node2, path.cost);
+            let newPath = new Path(node1, node2, path.cost);
+            gPaths.push(newPath);
+        }
+
+        const labeledNodes = nodes.filter((node) => node.label.trim() !== "");
+
+        nodeTraces = labeledNodes.map((node) => ({
+            type: "scattermapbox",
+            mode: "markers",
+            lon: [node.coordinate.long],
+            lat: [node.coordinate.lat],
+            marker: {
+                size: 15,
+                color: "blue",
+            },
+            text: node.label,
+            name: node.label, // Set the name to the node label
+        }));
+
+        // Create traces for paths
+        const edgeTraces = paths.map((path) => ({
+            type: "scattermapbox",
+            mode: "lines",
+            lon: [
+                path.node1Data.coordinate.long,
+                path.node2Data.coordinate.long,
+            ],
+            lat: [path.node1Data.coordinate.lat, path.node2Data.coordinate.lat],
+            line: {
+                width: 2,
+                color: "black",
+            },
+        }));
+
+        setTraces([...nodeTraces]);
+        // setRevision(revision + 1);
+        setToken(true);
+
+        // https://stackoverflow.com/questions/77977461/updating-single-data-point-in-react-plotly-without-re-rendering-entire-plot
+        setTimeout(() => {
+            let index = 0;
+            for (let trace of nodeTraces) {
+                trace.marker.color = "red";
+                index++;
+                if (index > 7) {
+                    break;
+                }
+            }
+            // setRevision(revision+1);
+            setTraces([...nodeTraces]);
+        }, 5000);
+    };
+    // let dataRetrieved = false;
+
+    useEffect(() => {
+        // if (!dataRetrieved) {
+        //     console.log("test");
+        //     dataRetrieved = true;
+        // }
+        if (token == null) getData();
+    }, [token]);
+    // getData();
+
+    return (
+        <div className="App">
+            <Plot
+                data={traces}
+                layout={layout}
+                onUpdate={(figure) => setLayout(figure.layout)}
+                // onInitialized={(figure) => setFigure(figure)}
+                revision={revision}
+            />
+
+            {/*             
+            <header className="App-header">
+                <img src={logo} className="App-logo" alt="logo" />
+                <p>
+                    Edit <code>src/App.js</code> and save to reload.
+                </p>
+                <a
+                    className="App-link"
+                    href="https://reactjs.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Learn React
+                </a>
+            </header> */}
+        </div>
+    );
 }
 
 export default App;
