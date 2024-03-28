@@ -148,7 +148,7 @@ function App() {
                     break;
                 }
             }
-            // setRevision(revision+1);
+            // setRevision(revision+1); 
             setTraces([...nodeTraces]);
         }, 5000);
     };
@@ -163,6 +163,9 @@ function App() {
     }, [token]);
     // getData();
 
+    const onClick = (e) =>{
+      console.log(e)
+    }
     return (
         <div className="App">
             <Plot
@@ -171,6 +174,7 @@ function App() {
                 onUpdate={(figure) => setLayout(figure.layout)}
                 // onInitialized={(figure) => setFigure(figure)}
                 revision={revision}
+                onClick={onClick}
             />
 
             {/*             
