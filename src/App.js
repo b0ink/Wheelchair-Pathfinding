@@ -56,18 +56,20 @@ function App() {
     //     name: node.label, // Set the name to the node label
     // }));
     function HotFixMissingPaths(startNodeID){
+        console.log('starting index at', startNodeID)
         // connect node 798 to 354
         GetNodeById(798).addNeighbor(GetNodeById(354));
         GetNodeById(354).addNeighbor(GetNodeById(798));
         // newNode1 += -37.8460620, 145.1136229
-        let newNode1 = new Node(startNodeID++, 145.1136229, -37.8460620);
+        let newNode1 = new Node(805, 145.1136229, -37.8460620);
 
         // connect 601 to newNode1
         GetNodeById(601).addNeighbor(newNode1);
         newNode1.addNeighbor(GetNodeById(601));
 
         // newNode2 += -37.8461351, 145.1137048 
-        let newNode2 = new Node(startNodeID++, 145.1137048, -37.8461351);
+        startNodeID++;
+        let newNode2 = new Node(806, 145.1137048, -37.8461351);
 
         // connect node HF/762 to newNode2
         newNode2.addNeighbor(GetNodeById(762));
@@ -137,8 +139,8 @@ function App() {
                 let tentativeGScore =
                     gScore[current] + calculateDistance(current, neighbor);
 
-                AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
-                await sleep(10);
+                // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
+                // await sleep();
 
                 if (
                     !openSet.includes(neighbor) ||
@@ -334,7 +336,7 @@ function App() {
             gPaths.push(newPath);
         }
 
-        let hotfix = HotFixMissingPaths(gNodes.length);
+        let hotfix = HotFixMissingPaths();
         gNodes.push(...hotfix);
 
         console.log('gnodes', gNodes)
