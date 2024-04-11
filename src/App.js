@@ -201,7 +201,6 @@ function App() {
 
             traces.push(newTrace);
             setTraces([...traces]);
-            await sleep(50);
             let node1 = {
                 lat: path[i].coordinates.lat,
                 lon: path[i].coordinates.lon,
@@ -211,6 +210,9 @@ function App() {
                 lon: path[i + 1].coordinates.lon,
             };
             distance += calculateDistance(node1, node2);
+
+            await sleep(50);
+
 
             // Plotly.addTrace('plot', newTrace)
         }
@@ -283,8 +285,8 @@ function App() {
         hovermode: "closest",
         mapbox: {
             style: "open-street-map",
-            center: { lon: 145.1155302, lat: -37.8480303 },
-            zoom: 15,
+            center: { lon: 145.11280923809354, lat:-37.847196668316924 },
+            zoom: 16,
         },
     });
 
