@@ -109,8 +109,8 @@ function App() {
                 let tentativeGScore =
                     gScore[current] + calculateDistance(current, neighbor);
 
-                AddNewPath(current, neighbor, "red", tentativeGScore.toString());
-                await sleep(5);
+                AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
+                await sleep(10);
 
                 if (
                     !openSet.includes(neighbor) ||
@@ -121,6 +121,7 @@ function App() {
                     // }
 
                     neighbor.parent = current;
+
                     gScore[neighbor] = tentativeGScore;
                     fScore[neighbor] =
                         gScore[neighbor] + calculateDistance(neighbor, endNode);
@@ -178,7 +179,7 @@ function App() {
 
             traces.push(newTrace);
             setTraces([...traces]);
-            // await sleep(50);
+            await sleep(50);
             let node1 = {
                 lat: path[i].coordinates.lat,
                 lon: path[i].coordinates.lon,
