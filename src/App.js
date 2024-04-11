@@ -55,6 +55,34 @@ function App() {
     //     text: node.label,
     //     name: node.label, // Set the name to the node label
     // }));
+    function HotFixMissingPaths(startNodeID){
+        // connect node 798 to 354
+        GetNodeById(798).addNeighbor(GetNodeById(354));
+        GetNodeById(354).addNeighbor(GetNodeById(798));
+        // newNode1 += -37.8460620, 145.1136229
+        let newNode1 = new Node(startNodeID++, 145.1136229, -37.8460620);
+
+        // connect 601 to newNode1
+        GetNodeById(601).addNeighbor(newNode1);
+        newNode1.addNeighbor(GetNodeById(601));
+
+        // newNode2 += -37.8461351, 145.1137048 
+        let newNode2 = new Node(startNodeID++, 145.1137048, -37.8461351);
+
+        // connect node HF/762 to newNode2
+        newNode2.addNeighbor(GetNodeById(762));
+        GetNodeById(762).addNeighbor(newNode2);
+
+        // connect newNode1 to newNode2
+        newNode1.addNeighbor(newNode2);
+        newNode2.addNeighbor(newNode1);
+
+        // connect HE/123 to newNode2
+        GetNodeById(123).addNeighbor(newNode2);
+        newNode2.addNeighbor(GetNodeById(123));
+        return [newNode1, newNode2];
+    }
+
 
     async function AStar(startNode, endNode) {
         let openSet = [startNode];
@@ -294,7 +322,7 @@ function App() {
                 new Node(node.id, node.coordinate.long, node.coordinate.lat)
             );
         }
-        console.log('gnodes', gNodes)
+
 
         for (let path of paths) {
             let node1 = GetNodeById(path.nodeID1);
@@ -305,6 +333,11 @@ function App() {
             let newPath = new Path(node1, node2, path.cost);
             gPaths.push(newPath);
         }
+
+        let hotfix = HotFixMissingPaths(gNodes.length);
+        gNodes.push(...hotfix);
+
+        console.log('gnodes', gNodes)
 
         const labeledNodes = nodes.filter((node) => node.label.trim() !== "");
 
@@ -336,7 +369,9 @@ function App() {
             },
         }));
 
+        // setTraces([...nodeTraces, ...edgeTraces]);
         setTraces([...nodeTraces]);
+
         // setRevision(revision + 1);
         setToken(true);
         // https://stackoverflow.com/questions/77977461/updating-single-data-point-in-react-plotly-without-re-rendering-entire-plot
