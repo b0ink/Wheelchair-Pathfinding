@@ -172,20 +172,12 @@ function App() {
 
     // Function to reconstruct the path from start to end
     function reconstructPath(currentNode) {
-        console.log(currentNode);
         let count = 0;
         const path = [currentNode];
         while (currentNode.parent) {
             path.unshift(currentNode.parent);
             currentNode = currentNode.parent;
-            if(count > 1000){
-                console.log('wtf?');
-                break;
-            }
             count++;
-        }
-        if(count > 1000){
-            return null;
         }
         console.log(path);
         RenderFinalPath(path);
