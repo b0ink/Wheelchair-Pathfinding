@@ -134,7 +134,7 @@
           "long": 145.1141995,
           "lat": -37.8479694
         },
-        "label": "building B"
+        "label": "Building B"
       },
       {
         "id": 18,
@@ -182,7 +182,7 @@
           "long": 145.11475308310457,
           "lat": -37.84742775491777
         },
-        "label": "building X"
+        "label": "Building X"
       },
       {
         "id": 24,
@@ -694,7 +694,7 @@
           "long": 145.11474518236452,
           "lat": -37.8494577026067
         },
-        "label": "building BC"
+        "label": "Building BC"
       },
       {
         "id": 88,
@@ -734,7 +734,7 @@
           "long": 145.11550457662142,
           "lat": -37.8480132292731
         },
-        "label": "building G"
+        "label": "Building G"
       },
       {
         "id": 93,
@@ -742,7 +742,7 @@
           "long": 145.1159166672411,
           "lat": -37.84797876376419
         },
-        "label": "building M"
+        "label": "Building M"
       },
       {
         "id": 94,
@@ -750,7 +750,7 @@
           "long": 145.1157464951368,
           "lat": -37.848142578548035
         },
-        "label": "building N"
+        "label": "Building N"
       },
       {
         "id": 95,
@@ -838,7 +838,7 @@
           "long": 145.1159162020002,
           "lat": -37.84781555979912
         },
-        "label": "building M"
+        "label": "Building M"
       },
       {
         "id": 106,
@@ -846,7 +846,7 @@
           "long": 145.1158998,
           "lat": -37.8476969
         },
-        "label": "building L"
+        "label": "Building L"
       },
       {
         "id": 107,
@@ -862,7 +862,7 @@
           "long": 145.11588038121945,
           "lat": -37.84743923007751
         },
-        "label": "building T"
+        "label": "Building T"
       },
       {
         "id": 109,
@@ -982,7 +982,7 @@
           "long": 145.1138708193256,
           "lat": -37.84615198905719
         },
-        "label": "HE"
+        "label": "Building HE"
       },
       {
         "id": 124,
@@ -998,7 +998,7 @@
           "long": 145.1138649941962,
           "lat": -37.8488519205888
         },
-        "label": "building Y"
+        "label": "Building Y"
       },
       {
         "id": 126,
@@ -1038,7 +1038,7 @@
           "long": 145.1143408356061,
           "lat": -37.84841385540098
         },
-        "label": "building W"
+        "label": "Building W"
       },
       {
         "id": 131,
@@ -2886,7 +2886,7 @@
           "long": 145.10932578857697,
           "lat": -37.84912734981708
         },
-        "label": "hungry jacks"
+        "label": "Hungry Jacks"
       },
       {
         "id": 362,
@@ -3006,7 +3006,7 @@
           "long": 145.1112141,
           "lat": -37.8449963
         },
-        "label": ""
+        "label": "Water Fountain"
       },
       {
         "id": 377,
@@ -3166,7 +3166,7 @@
           "long": 145.1147431,
           "lat": -37.8488852
         },
-        "label": "building H"
+        "label": "Building H"
       },
       {
         "id": 397,
@@ -3182,7 +3182,7 @@
           "long": 145.1148539,
           "lat": -37.8486226
         },
-        "label": "H"
+        "label": "Building H"
       },
       {
         "id": 399,
@@ -3430,7 +3430,7 @@
           "long": 145.1152026,
           "lat": -37.8475313
         },
-        "label": "building I"
+        "label": "Building I"
       },
       {
         "id": 430,
@@ -3526,7 +3526,7 @@
           "long": 145.1145590533633,
           "lat": -37.84852817762518
         },
-        "label": "building H"
+        "label": "Building H"
       },
       {
         "id": 442,
@@ -3902,7 +3902,7 @@
           "long": 145.1138646,
           "lat": -37.84689
         },
-        "label": "building P"
+        "label": "Building P"
       },
       {
         "id": 489,
@@ -4110,7 +4110,7 @@
           "long": 145.1136249,
           "lat": -37.8485338
         },
-        "label": "building U"
+        "label": "Building U"
       },
       {
         "id": 515,
@@ -4118,7 +4118,7 @@
           "long": 145.1132746,
           "lat": -37.8488098
         },
-        "label": "building U"
+        "label": "Building U"
       },
       {
         "id": 516,
@@ -4158,7 +4158,7 @@
           "long": 145.11390776177205,
           "lat": -37.84646477089636
         },
-        "label": "HF"
+        "label": "Building HF"
       },
       {
         "id": 521,
@@ -4326,7 +4326,7 @@
           "long": 145.1147039,
           "lat": -37.8485482
         },
-        "label": "building H"
+        "label": "Building H"
       },
       {
         "id": 542,
@@ -4334,7 +4334,7 @@
           "long": 145.1161683,
           "lat": -37.847379
         },
-        "label": "building T"
+        "label": "Building T"
       },
       {
         "id": 543,
@@ -4646,7 +4646,7 @@
           "long": 145.1116475,
           "lat": -37.8449517
         },
-        "label": ""
+        "label": "Building LC (front)"
       },
       {
         "id": 582,
@@ -5246,7 +5246,7 @@
           "long": 145.1119565,
           "lat": -37.8446871
         },
-        "label": "LC"
+        "label": "Building LC (Back)"
       },
       {
         "id": 657,
@@ -5366,7 +5366,7 @@
           "long": 145.11574657597745,
           "lat": -37.84873524469766
         },
-        "label": "building F"
+        "label": "Building F"
       },
       {
         "id": 672,
@@ -5374,7 +5374,7 @@
           "long": 145.11071612350915,
           "lat": -37.845034135243864
         },
-        "label": "LB"
+        "label": "Building LB"
       },
       {
         "id": 673,
@@ -5382,7 +5382,7 @@
           "long": 145.11066222366398,
           "lat": -37.84485720618819
         },
-        "label": "LA entrance"
+        "label": "Building LA"
       },
       {
         "id": 674,
@@ -5406,7 +5406,7 @@
           "long": 145.1135837,
           "lat": -37.8479101
         },
-        "label": "building J"
+        "label": "Building J"
       },
       {
         "id": 677,
@@ -5926,7 +5926,7 @@
           "long": 145.1148677,
           "lat": -37.84402
         },
-        "label": ""
+        "label": "C Block"
       },
       {
         "id": 742,
@@ -5974,7 +5974,7 @@
           "long": 145.11590623052837,
           "lat": -37.848705831874774
         },
-        "label": "building E"
+        "label": "Building E"
       },
       {
         "id": 748,
@@ -5982,7 +5982,7 @@
           "long": 145.11581410018886,
           "lat": -37.848625826575564
         },
-        "label": "building D"
+        "label": "Building D"
       },
       {
         "id": 749,
@@ -6014,7 +6014,7 @@
           "long": 145.1145383,
           "lat": -37.8478979
         },
-        "label": "building B"
+        "label": "Building B"
       },
       {
         "id": 753,
@@ -6078,7 +6078,7 @@
           "long": 145.11549491974884,
           "lat": -37.848405168591164
         },
-        "label": "building C"
+        "label": "Building C"
       },
       {
         "id": 761,
@@ -6094,7 +6094,7 @@
           "long": 145.1137778798219,
           "lat": -37.846200161931115
         },
-        "label": "HF"
+        "label": "Building HF"
       },
       {
         "id": 763,
@@ -6294,7 +6294,7 @@
           "long": 145.1122649,
           "lat": -37.8445291
         },
-        "label": "MB"
+        "label": "Building MB"
       },
       {
         "id": 788,
@@ -6700,7 +6700,7 @@
             "long": 145.1141995,
             "lat": -37.8479694
           },
-          "label": "building B"
+          "label": "Building B"
         },
         "cost": 28.801506425602046
       },
@@ -6784,7 +6784,7 @@
             "long": 145.11475308310457,
             "lat": -37.84742775491777
           },
-          "label": "building X"
+          "label": "Building X"
         },
         "cost": 4.895087352103154
       },
@@ -8149,7 +8149,7 @@
             "long": 145.11474518236452,
             "lat": -37.8494577026067
           },
-          "label": "building BC"
+          "label": "Building BC"
         },
         "cost": 11.479539126560786
       },
@@ -8288,7 +8288,7 @@
             "long": 145.11550457662142,
             "lat": -37.8480132292731
           },
-          "label": "building G"
+          "label": "Building G"
         },
         "node2Data": {
           "id": 93,
@@ -8296,7 +8296,7 @@
             "long": 145.1159166672411,
             "lat": -37.84797876376419
           },
-          "label": "building M"
+          "label": "Building M"
         },
         "cost": 36.38563901128969
       },
@@ -8309,7 +8309,7 @@
             "long": 145.11550457662142,
             "lat": -37.8480132292731
           },
-          "label": "building G"
+          "label": "Building G"
         },
         "node2Data": {
           "id": 94,
@@ -8317,7 +8317,7 @@
             "long": 145.1157464951368,
             "lat": -37.848142578548035
           },
-          "label": "building N"
+          "label": "Building N"
         },
         "cost": 25.652835068276737
       },
@@ -8519,7 +8519,7 @@
             "long": 145.1159162020002,
             "lat": -37.84781555979912
           },
-          "label": "building M"
+          "label": "Building M"
         },
         "node2Data": {
           "id": 101,
@@ -8548,7 +8548,7 @@
             "long": 145.1158998,
             "lat": -37.8476969
           },
-          "label": "building L"
+          "label": "Building L"
         },
         "cost": 5.518298987875929
       },
@@ -8569,7 +8569,7 @@
             "long": 145.11588038121945,
             "lat": -37.84743923007751
           },
-          "label": "building T"
+          "label": "Building T"
         },
         "cost": 5.795750416717391
       },
@@ -8884,7 +8884,7 @@
             "long": 145.1138708193256,
             "lat": -37.84615198905719
           },
-          "label": "HE"
+          "label": "Building HE"
         },
         "cost": 14.695281652948294
       },
@@ -8905,7 +8905,7 @@
             "long": 145.1138649941962,
             "lat": -37.8488519205888
           },
-          "label": "building Y"
+          "label": "Building Y"
         },
         "cost": 3.4032885859869424
       },
@@ -9044,7 +9044,7 @@
             "long": 145.1143408356061,
             "lat": -37.84841385540098
           },
-          "label": "building W"
+          "label": "Building W"
         },
         "node2Data": {
           "id": 131,
@@ -9073,7 +9073,7 @@
             "long": 145.1143408356061,
             "lat": -37.84841385540098
           },
-          "label": "building W"
+          "label": "Building W"
         },
         "cost": 19.87737655245105
       },
@@ -13777,7 +13777,7 @@
             "long": 145.10932578857697,
             "lat": -37.84912734981708
           },
-          "label": "hungry jacks"
+          "label": "Hungry Jacks"
         },
         "cost": 5.804136704773897
       },
@@ -14470,7 +14470,7 @@
             "long": 145.1147431,
             "lat": -37.8488852
           },
-          "label": "building H"
+          "label": "Building H"
         },
         "cost": 9.886099566634755
       },
@@ -14491,7 +14491,7 @@
             "long": 145.1148539,
             "lat": -37.8486226
           },
-          "label": "H"
+          "label": "Building H"
         },
         "cost": 6.747303049455626
       },
@@ -15121,7 +15121,7 @@
             "long": 145.1152026,
             "lat": -37.8475313
           },
-          "label": "building I"
+          "label": "Building I"
         },
         "cost": 19.344716695321047
       },
@@ -15134,7 +15134,7 @@
             "long": 145.1152026,
             "lat": -37.8475313
           },
-          "label": "building I"
+          "label": "Building I"
         },
         "node2Data": {
           "id": 430,
@@ -15415,7 +15415,7 @@
             "long": 145.1145590533633,
             "lat": -37.84852817762518
           },
-          "label": "building H"
+          "label": "Building H"
         },
         "cost": 7.747318761083908
       },
@@ -16667,7 +16667,7 @@
             "long": 145.1138646,
             "lat": -37.84689
           },
-          "label": "building P"
+          "label": "Building P"
         },
         "node2Data": {
           "id": 420,
@@ -16990,7 +16990,7 @@
             "long": 145.11550457662142,
             "lat": -37.8480132292731
           },
-          "label": "building G"
+          "label": "Building G"
         },
         "cost": 7.794406938977777
       },
@@ -17003,7 +17003,7 @@
             "long": 145.11550457662142,
             "lat": -37.8480132292731
           },
-          "label": "building G"
+          "label": "Building G"
         },
         "node2Data": {
           "id": 500,
@@ -17326,7 +17326,7 @@
             "long": 145.1136249,
             "lat": -37.8485338
           },
-          "label": "building U"
+          "label": "Building U"
         },
         "cost": 67.60176997149428
       },
@@ -17339,7 +17339,7 @@
             "long": 145.1132746,
             "lat": -37.8488098
           },
-          "label": "building U"
+          "label": "Building U"
         },
         "node2Data": {
           "id": 129,
@@ -17452,7 +17452,7 @@
             "long": 145.11390776177205,
             "lat": -37.84646477089636
           },
-          "label": "HF"
+          "label": "Building HF"
         },
         "cost": 20.778202846002966
       },
@@ -17914,7 +17914,7 @@
             "long": 145.1147039,
             "lat": -37.8485482
           },
-          "label": "building H"
+          "label": "Building H"
         },
         "cost": 8.315721586107928
       },
@@ -17935,7 +17935,7 @@
             "long": 145.1161683,
             "lat": -37.847379
           },
-          "label": "building T"
+          "label": "Building T"
         },
         "cost": 6.360934541059515
       },
@@ -20371,7 +20371,7 @@
             "long": 145.1119565,
             "lat": -37.8446871
           },
-          "label": "LC"
+          "label": "Building LC (back)"
         },
         "cost": 2.9254941593298938
       },
@@ -20665,7 +20665,7 @@
             "long": 145.11574657597745,
             "lat": -37.84873524469766
           },
-          "label": "building F"
+          "label": "Building F"
         },
         "cost": 7.502758229985149
       },
@@ -20686,7 +20686,7 @@
             "long": 145.11071612350915,
             "lat": -37.845034135243864
           },
-          "label": "LB"
+          "label": "Building LB"
         },
         "cost": 9.328937074447794
       },
@@ -20707,7 +20707,7 @@
             "long": 145.11066222366398,
             "lat": -37.84485720618819
           },
-          "label": "LA entrance"
+          "label": "Building LA"
         },
         "cost": 9.772479709074132
       },
@@ -20791,7 +20791,7 @@
             "long": 145.1135837,
             "lat": -37.8479101
           },
-          "label": "building J"
+          "label": "Building J"
         },
         "cost": 11.14827360469573
       },
@@ -22505,7 +22505,7 @@
             "long": 145.11590623052837,
             "lat": -37.848705831874774
           },
-          "label": "building E"
+          "label": "Building E"
         },
         "node2Data": {
           "id": 670,
@@ -22534,7 +22534,7 @@
             "long": 145.11581410018886,
             "lat": -37.848625826575564
           },
-          "label": "building D"
+          "label": "Building D"
         },
         "cost": 6.995793653265726
       },
@@ -22723,7 +22723,7 @@
             "long": 145.1145383,
             "lat": -37.8478979
           },
-          "label": "building B"
+          "label": "Building B"
         },
         "cost": 5.43485920215196
       },
@@ -22912,7 +22912,7 @@
             "long": 145.11549491974884,
             "lat": -37.848405168591164
           },
-          "label": "building C"
+          "label": "Building C"
         },
         "cost": 19.08009929740918
       },
@@ -22925,7 +22925,7 @@
             "long": 145.11549491974884,
             "lat": -37.848405168591164
           },
-          "label": "building C"
+          "label": "Building C"
         },
         "node2Data": {
           "id": 761,
@@ -22988,7 +22988,7 @@
             "long": 145.1137778798219,
             "lat": -37.846200161931115
           },
-          "label": "HF"
+          "label": "Building HF"
         },
         "node2Data": {
           "id": 520,
@@ -22996,7 +22996,7 @@
             "long": 145.11390776177205,
             "lat": -37.84646477089636
           },
-          "label": "HF"
+          "label": "Building HF"
         },
         "cost": 31.55604742046044
       },
@@ -23681,7 +23681,7 @@
             "long": 145.1119565,
             "lat": -37.8446871
           },
-          "label": "LC"
+          "label": "Building LC (back)"
         },
         "node2Data": {
           "id": 786,
@@ -23710,7 +23710,7 @@
             "long": 145.1122649,
             "lat": -37.8445291
           },
-          "label": "MB"
+          "label": "Building MB"
         },
         "cost": 6.177233725260133
       },
