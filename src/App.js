@@ -3,8 +3,6 @@ import "./App.css";
 import Plot from "react-plotly.js";
 import { useEffect, useState, useMemo } from "react";
 
-import update from "immutability-helper";
-
 let gNodes = [];
 let gPaths = [];
 let node1Selection = null;
