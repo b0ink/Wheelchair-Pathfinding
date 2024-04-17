@@ -1,5 +1,27 @@
+#stats_nodes{
+  display: block;
+}
+
+#stats{
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+
+  /* border: 1px solid lime; */
+  color: white;
+  font-size: 24px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
 .App {
-  text-align: center;
+  /* text-align: center; */
+  width: 100vw;
+}
+
+.App,body{
+  background-color: #313b3c!important;
 }
 
 .App-logo {
@@ -11,6 +33,11 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+}
+
+.mapboxgl-canvas{
+  border-radius: 25px;
+  overflow: hidden;
 }
 
 .App-header {

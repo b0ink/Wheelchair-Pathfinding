@@ -10,10 +10,19 @@ let gPaths = [];
 let node1Selection = null;
 let node2Selection = null;
 
+const CalculateDistance = require("./CalculateDistance");
+
 function toRadians(degrees) {
     return (degrees * Math.PI) / 180;
 }
 function calculateDistance(node1, node2) {
+    // return CalculateDistance.distVincenty(
+    //     node1.lat,
+    //     node1.lon,
+    //     node2.lat,
+    //     node2.lon
+    // );
+
     // return euclideanDistance(node1, node2);
 
     const earthRadius = 6371000; // Earth's radius in meters
@@ -38,36 +47,30 @@ function calculateDistance(node1, node2) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-
 function App() {
     const [traces, setTraces] = useState([]);
     const [token, setToken] = useState(null);
 
-    //   nodeTraces = labeledNodes.map((node) => ({
-    //     type: "scattermapbox",
-    //     mode: "markers",
-    //     lon: [node.coordinate.long],
-    //     lat: [node.coordinate.lat],
-    //     marker: {
-    //         size: 15,
-    //         color: "blue",
-    //     },
-    //     text: node.label,
-    //     name: node.label, // Set the name to the node label
-    // }));
-    function HotFixMissingPaths(startNodeID){
-        console.log('starting index at', startNodeID)
+
+    const [node1Name, setNode1Name] = useState("");
+    const [node2Name, setNode2Name] = useState("");
+
+    const [pathDistance, setPathDistance] = useState(0);
+
+
+    function HotFixMissingPaths(startNodeID) {
+        console.log("starting index at", startNodeID);
         // connect node 798 to 354
         GetNodeById(798).addNeighbor(GetNodeById(354));
         GetNodeById(354).addNeighbor(GetNodeById(798));
         // newNode1 += -37.8460620, 145.1136229
-        let newNode1 = new Node(805, 145.1136229, -37.8460620);
+        let newNode1 = new Node(805, 145.1136229, -37.846062);
 
         // connect 601 to newNode1
         GetNodeById(601).addNeighbor(newNode1);
         newNode1.addNeighbor(GetNodeById(601));
 
-        // newNode2 += -37.8461351, 145.1137048 
+        // newNode2 += -37.8461351, 145.1137048
         startNodeID++;
         let newNode2 = new Node(806, 145.1137048, -37.8461351);
 
@@ -85,7 +88,6 @@ function App() {
         return [newNode1, newNode2];
     }
 
-
     async function AStar(startNode, endNode) {
         let openSet = [startNode];
         let closedSet = [];
@@ -102,22 +104,9 @@ function App() {
         while (openSet.length > 0) {
             count1++;
 
-            //TODO:
-
             let current = openSet.reduce((minNode, node) =>
                 fScore[node] < fScore[minNode] ? node : minNode
             );
-
-            // let current = openSet.reduce((minNode, node) => {
-            //     if (fScore[node] < fScore[minNode]) {
-            //         // AddNewPath(node, node.parent, "green", "a");
-            //         return node;
-            //     } else {
-            //         // AddNewPath(minNode, minNode.parent, "red", "asdf1");
-            //         // AddNewPath(minNode, minNode.parent, "red", "s");
-            //         return minNode;
-            //     }
-            // });
 
             if (current === endNode) {
                 console.log("count1", count1);
@@ -127,7 +116,7 @@ function App() {
 
             openSet = openSet.filter((node) => node !== current);
             closedSet.push(current);
-            
+
             // AddNewPath(current, node, "orange", "test");
 
             for (let neighbor of current.neighbors) {
@@ -210,18 +199,13 @@ function App() {
                 lon: path[i + 1].coordinates.lon,
             };
             distance += calculateDistance(node1, node2);
-
+            setPathDistance(distance);
             await sleep(50);
-
 
             // Plotly.addTrace('plot', newTrace)
         }
         console.log("DISTANCE TO GET THERE:, ", distance);
-        
-
     }
-
-
 
     class Node {
         constructor(id, lon, lat) {
@@ -259,38 +243,46 @@ function App() {
 
         // let newTraces = [];
         // for(let oldtrace of traces){
-            // newTraces.push(oldtrace)
+        // newTraces.push(oldtrace)
         // }
         // newTraces.push(newTrace);
         // console.log(traces)
         // traces.dataValues.push(newTrace);
         traces.push(newTrace);
         setTraces([...traces]);
-        console.log('adding new trace');
+        console.log("adding new trace");
         return newTrace;
     }
 
     // const layout = {
     const [layout, setLayout] = useState({
-        autosize: false,
-        width: 1200,
-        height: 900,
+        responsive: true,
+        useResizeHandler: true,
+        autosize: true,
+        width: window.innerWidth,
+        height: window.innerHeight,
         margin: {
-            l: 50,
-            r: 50,
-            b: 100,
-            t: 100,
-            pad: 4,
+            l: 25,
+            r: 25,
+            b: 50,
+            t: 50,
+            pad: 0,
         },
+        legend: {
+            bgcolor: "#313b3c",
+            font: {
+                color: "#FFF",
+            },
+        },
+        paper_bgcolor: "#313b3c",
         hovermode: "closest",
+        clickmode: "event",
         mapbox: {
             style: "open-street-map",
-            center: { lon: 145.11280923809354, lat:-37.847196668316924 },
+            center: { lon: 145.11280923809354, lat: -37.847196668316924 },
             zoom: 16,
         },
     });
-
-    // const [figure, setFigure] = useState({ data: [], layout: layout });
 
 
     function GetNodeById(id) {
@@ -319,12 +311,15 @@ function App() {
             );
         }
 
-
         for (let path of paths) {
             let node1 = GetNodeById(path.nodeID1);
             let node2 = GetNodeById(path.nodeID2);
-            node1.addNeighbor(node2);
-            node2.addNeighbor(node1);
+            if (!node1.neighbors.includes(node2)) {
+                node1.addNeighbor(node2);
+            }
+            if (!node2.neighbors.includes(node1)) {
+                node2.addNeighbor(node1);
+            }
             // console.log(node1, node2, path.cost);
             let newPath = new Path(node1, node2, path.cost);
             gPaths.push(newPath);
@@ -333,9 +328,8 @@ function App() {
         let hotfix = HotFixMissingPaths();
         gNodes.push(...hotfix);
 
-        console.log('gnodes', gNodes)
-
         const labeledNodes = nodes.filter((node) => node.label.trim() !== "");
+        // const labeledNodes = nodes;
 
         nodeTraces = labeledNodes.map((node) => ({
             type: "scattermapbox",
@@ -368,110 +362,112 @@ function App() {
         // setTraces([...nodeTraces, ...edgeTraces]);
         setTraces([...nodeTraces]);
 
-        // setRevision(revision + 1);
         setToken(true);
-        // https://stackoverflow.com/questions/77977461/updating-single-data-point-in-react-plotly-without-re-rendering-entire-plot
-        // setTimeout(() => {
-        //     let index = 0;
-        //     for (let trace of nodeTraces) {
-        //         trace.marker.color = "red";
-        //         index++;
-        //         if (index > 7) {
-        //             break;
-        //         }
-        //     }
 
-        //     // setRevision(revision+1);
-        //     setTraces([...nodeTraces]);
-
-        //     let newData = []
-
-        //     for(let i = 1000; i<=5000;i+= 1000){
-        //       setTimeout(()=>{
-        //         for(let j = 0; j < gNodes.length-1;j++){
-        //           if(Math.random() < 0.05){
-        //             newData.push(AddNewPath(gNodes[j], gNodes[j+1]));
-        //           }
-        //         }
-        //         setTraces([...nodeTraces, ...newData]);
-        //         newData = []
-        //       },i)
-        //     }
-
-        //     setTimeout(()=>{
-        //       // clears paths
-        //       setTraces([...nodeTraces]);
-        //     }, 10000);
-        // }, 5000);
     };
-    // let dataRetrieved = false;
 
     useEffect(() => {
         // if (!dataRetrieved) {
         //     console.log("test");
         //     dataRetrieved = true;
         // }
-        if (token == null) getData();
-    }, [token]);
-    // getData();
+        if (token == null) {
+            getData();
 
+            window.addEventListener("resize", (e) => {
+                setLayout({
+                    responsive: true,
+                    useResizeHandler: true,
+                    autosize: true,
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    margin: {
+                        l: 25,
+                        r: 25,
+                        b: 50,
+                        t: 50,
+                        pad: 0,
+                    },
+                    legend: {
+                        bgcolor: "#313b3c",
+                        font: {
+                            color: "#FFF",
+                        },
+                    },
+                    paper_bgcolor: "#313b3c",
+                    hovermode: "closest",
+                    clickmode: "event",
+                    mapbox: {
+                        style: "open-street-map",
+                        center: { lon: 145.11280923809354, lat: -37.847196668316924 },
+                        zoom: 16,
+                    },
+                });
+            });
+        }
+    }, [token]);
 
     const onClick = (e) => {
+        console.log(layout);
         console.log(e.points[0]);
         console.log(traces);
 
         let index = e.points[0].fullData.index;
-        if(e.points[0].data.mode !== "markers"){
-            console.log('not a marker')
+        if (e.points[0].data.mode !== "markers") {
+            console.log("not a marker");
             return;
         }
 
-
         let newTraces = [];
-        for(let trace of traces){
-            if(trace.mode !== 'lines'){
+        for (let trace of traces) {
+            if (trace.mode !== "lines") {
                 newTraces.push(trace);
             }
         }
         // setTraces([...newTraces]);
 
         for (let i = 0; i < newTraces.length; i++) {
-            if(newTraces[i].mode == "markers"){
+            if (newTraces[i].mode == "markers") {
                 if (i == index) {
                     newTraces[i].marker.color = "red";
                 } else {
                     newTraces[i].marker.color = "blue";
                 }
             }
-
         }
         setTraces([...newTraces]);
 
         const point = e.points[0];
-        console.log(point.lat, point.lon)
+        console.log(point.lat, point.lon);
         if (node1Selection === null) {
             node1Selection = GetNodeByCoord(point.lat, point.lon);
-            console.log("found node1selection", node1Selection);
+            setNode1Name(point.fullData.name);
+            setNode2Name("");
         } else if (node2Selection === null) {
             node2Selection = GetNodeByCoord(point.lat, point.lon);
-            console.log("found node2selection", node2Selection);
+            setNode2Name(point.fullData.name);
 
             if (node2Selection != null) {
-                console.log('pathfinding betweem', node1Selection, node2Selection)
+                console.log(
+                    "pathfinding betweem",
+                    node1Selection,
+                    node2Selection
+                );
                 DoPathFind(node1Selection, node2Selection);
             }
             node1Selection = null;
             node2Selection = null;
-            
 
             //! clear previous AStar node.parent assigning
-            for(let node of gNodes){
-                if(node.parent){
+            for (let node of gNodes) {
+                if (node.parent) {
                     node.parent = null;
                 }
             }
-
         } else {
+            //TODO: disable clicking if mid-path find
+            setNode1Name("");
+            setNode2Name("");
             node1Selection = null;
             node2Selection = null;
         }
@@ -489,7 +485,7 @@ function App() {
         console.log("updating route colros?");
     }
     function GetNodeByCoord(lat, lon) {
-        console.log(gNodes)
+        console.log(gNodes);
         for (let node of gNodes) {
             if (node.coordinates.lat == lat && node.coordinates.lon == lon) {
                 return node;
@@ -498,9 +494,26 @@ function App() {
         return null;
     }
 
+    const onMouseMove = (e) => {
+        console.log(e);
+    };
+
     return (
         <div className="App">
+            <div id="stats">
+                <div id ="stats_nodes">
+                    <div id ="node1"><span>Node 1: </span>{node1Name ?? "N/A"}</div>
+                    <div id ="node2"><span>Node 2: </span>{node2Name}</div>
+                </div>
+                <div width = "100px"></div>
+                <div>
+                    <div>Distance: {pathDistance.toFixed(2)}m</div>
+                    <div>Est. Travel Time: {(pathDistance/70).toFixed(0)} Minutes</div>
+                </div>
+            </div>
+
             <Plot
+                id="graph"
                 data={traces}
                 layout={layout}
                 onUpdate={(figure) => setLayout(figure.layout)}
@@ -508,22 +521,6 @@ function App() {
                 revision={revision}
                 onClick={onClick}
             />
-
-            {/*             
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header> */}
         </div>
     );
 }
