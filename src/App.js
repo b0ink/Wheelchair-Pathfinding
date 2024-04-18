@@ -475,9 +475,9 @@ function App() {
     const [revision, setRevision] = useState(0);
 
     const getData = async () => {
-        const response = await fetch("/data.json");
-        const data = await response.json();
-
+        // const response = await fetch("/data.json");
+        // const data = await response.json();
+        const data = require('./data.json')
         const nodes = data.nodes;
         const paths = data.paths;
 
@@ -555,7 +555,7 @@ function App() {
         if(!confirm("Are you sure you want to render all 800+ traces?\n\nThis may take some time to load and is not recommended on slow devices")){
             return;
         }
-        window.location.href = window.origin + "?loadAllTraces="+Date.now()
+        window.location.href = window.origin + "/Wheelchair-Pathfinding?loadAllTraces="+Date.now()
     }
 
     useEffect(() => {
