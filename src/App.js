@@ -56,6 +56,7 @@ function App() {
     const [node2Name, setNode2Name] = useState("");
 
     const [pathDistance, setPathDistance] = useState(0);
+    const [totalNodesTraversed, setTotalNodesTraversed] = useState(0);
 
     const [heuristicType, setHeuristicType] = useState("Haversine");
     
@@ -63,7 +64,7 @@ function App() {
         setPathDistance(0);
         setNode1Name("");
         setNode2Name("");
-
+        setTotalNodesTraversed(0);
         node1Selection = null;
         node2Selection = null;
     }
@@ -140,6 +141,8 @@ function App() {
         let notGoodEnoughNodes = [];
         while (openSet.length > 0) {
             count1++;
+            await sleep(1);
+            setTotalNodesTraversed(count1);
 
             let current = openSet.reduce((minNode, node) =>
                 fScore[node] < fScore[minNode] ? node : minNode
@@ -195,7 +198,6 @@ function App() {
                 }
             }
         }
-        // GetPlotlyLayout;
         return null; // No path found
     }
 
@@ -491,7 +493,7 @@ function App() {
                         Minutes
                     </div>
                     <div>
-                        Nodes Traversed
+                        Nodes Traversed: {totalNodesTraversed}
                     </div>
                 </div>
             </div>
