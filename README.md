@@ -1,5 +1,7 @@
 # Wheelchair pathfinding
 
+## Live Demo
+https://b0ink.github.io/Wheelchair-Pathfinding/
 
 ## Usage
 - Use the dropdowns to select the heuristic function and algorithm type.
