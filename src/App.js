@@ -37,7 +37,7 @@ class Path {
 }
 
 const heuristics = ["Haversine", "Euclidean", "Manhattan"];
-const algorithms = ["astar", "dijkstra"];
+const algorithms = ["astar", "dijkstra", "bfs"];
 
 function App() {
     const [traces, setTraces] = useState([]);
@@ -264,6 +264,49 @@ function App() {
         RenderFinalPath(path);
         return path;
     }
+
+    async function breadthFirstSearch(startNode, endNode) {
+        const queue = [startNode];
+        const visited = new Set();
+        const previousNodes = {};
+    
+        let countNodesTraversed = 0;
+        while (queue.length > 0) {
+            const currentNode = queue.shift();
+            countNodesTraversed++;
+            await sleep(1)
+            setTotalNodesTraversed(countNodesTraversed);
+
+            if (currentNode === endNode) {
+                return reconstructPathBFS(startNode, endNode, previousNodes);
+            }
+    
+            visited.add(currentNode);
+    
+            for (const neighbor of currentNode.neighbors) {
+                countNodesTraversed++;
+                if (!visited.has(neighbor)) {
+                    queue.push(neighbor);
+                    previousNodes[neighbor.id] = currentNode;
+                }
+            }
+        }
+    
+        return null;
+    }
+
+    // Reconstruct the shortest path from start node to end node
+function reconstructPathBFS(startNode, endNode, previousNodes) {
+    const path = [];
+    let currentNode = endNode;
+    while (currentNode !== startNode) {
+        path.unshift(currentNode);
+        currentNode = previousNodes[currentNode.id];
+    }
+    path.unshift(startNode);
+    RenderFinalPath(path);
+    return path;
+}
 
     // Function to reconstruct the path from start to end
     function reconstructPath(currentNode) {
@@ -518,6 +561,8 @@ function App() {
         } else if (algoType == "dijkstra") {
             console.log("running dijkstra");
             const path = dijkstra(startNode, endNode);
+        }else if (algoType == "bfs") {
+            const path = breadthFirstSearch(startNode, endNode);
         }
         return; // todo
 
@@ -586,7 +631,7 @@ function App() {
                             A*
                         </option>
                         <option value="dijkstra">Dijkstra's</option>
-                        <option>Breadth First Search</option>
+                        <option value="bfs">Breadth First Search</option>
                     </select>
                 </div>
             </div>
