@@ -35,16 +35,6 @@ class Path {
     }
 }
 
-const CalculateDistance = (heuristicType, node1, node2) => {
-    if (heuristicType == "Haversine") {
-        return CalculateDistance_Haversine(node1, node2);
-    }else if(heuristicType == "Euclidean"){
-        return CalculateDistance_Euclidean(node1, node2);
-    }
-
-    return CalculateDistance_Haversine(node1, node2);
-};
-
 const heuristics = ["Haversine", "Euclidean", "Manhattan"];
 const algorithms = ["astar", "dijkstra"];
 
@@ -59,7 +49,17 @@ function App() {
     const [totalNodesTraversed, setTotalNodesTraversed] = useState(0);
 
     const [heuristicType, setHeuristicType] = useState("Haversine");
-    
+
+    const CalculateDistance = (node1, node2) => {
+        if (heuristicType == "Haversine") {
+            return CalculateDistance_Haversine(node1, node2);
+        } else if (heuristicType == "Euclidean") {
+            return CalculateDistance_Euclidean(node1, node2);
+        }
+
+        return CalculateDistance_Haversine(node1, node2);
+    };
+
     const ResetNav = () => {
         setPathDistance(0);
         setNode1Name("");
@@ -67,34 +67,31 @@ function App() {
         setTotalNodesTraversed(0);
         node1Selection = null;
         node2Selection = null;
-    }
+    };
 
     const onHeuristicChange = (e) => {
         e.preventDefault();
         let type = e.target.value;
-        if(!heuristics.includes(type)){
+        if (!heuristics.includes(type)) {
             type = "Euclidean";
         }
-        setHeuristicType(type)
+        setHeuristicType(type);
         ResetTraces(true);
         ResetNav();
-    }
-
+    };
 
     const [algoType, setAlgoType] = useState("astar");
-    
-
 
     const onAlgorithmChange = (e) => {
         e.preventDefault();
         let type = e.target.value;
-        if(!algorithms.includes(type)){
+        if (!algorithms.includes(type)) {
             type = "astar";
         }
-        setAlgoType(type)
+        setAlgoType(type);
         ResetTraces(true);
         ResetNav();
-    }
+    };
 
     function HotFixMissingPaths(startNodeID) {
         console.log("starting index at", startNodeID);
@@ -133,7 +130,7 @@ function App() {
         let fScore = {}; // Map to store the estimated total cost from start to goal through a node
 
         gScore[startNode] = 0;
-        fScore[startNode] = CalculateDistance(heuristicType, startNode, endNode);
+        fScore[startNode] = CalculateDistance(startNode, endNode);
 
         let count1 = 0;
         let count2 = 0;
@@ -167,8 +164,7 @@ function App() {
 
                 // f = g(node) + h(node)
                 let tentativeGScore =
-                    gScore[current] +
-                    CalculateDistance(heuristicType, current, neighbor);
+                    gScore[current] + CalculateDistance(current, neighbor);
 
                 // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
                 // await sleep();
@@ -185,8 +181,7 @@ function App() {
 
                     gScore[neighbor] = tentativeGScore;
                     fScore[neighbor] =
-                        gScore[neighbor] +
-                        CalculateDistance(heuristicType, neighbor, endNode);
+                        gScore[neighbor] + CalculateDistance(neighbor, endNode);
 
                     if (!openSet.includes(neighbor)) {
                         // AddNewPath(current, neighbor, "green", "s");
@@ -199,6 +194,65 @@ function App() {
             }
         }
         return null; // No path found
+    }
+
+    async function dijkstra(startNode, endNode) {
+        // Initialize distances to all nodes as infinity except for the start node
+        let distances = {};
+        let previousNodes = {};
+        gNodes.forEach(node => {
+            distances[node.id] = node === startNode ? 0 : Infinity;
+            previousNodes[node.id] = null;
+        });
+
+        console.log(distances);
+    
+        let count1NodesTrav = 0;
+        let count2 = 0;
+        // Main loop
+        const unvisitedNodes = [...gNodes];
+        while (unvisitedNodes.length > 0) {
+            // Find the node with the smallest distance from start among unvisited nodes
+            const currentNode = unvisitedNodes.reduce((minNode, node) =>
+                distances[node.id] < distances[minNode.id] ? node : minNode
+            );
+    
+            if (currentNode === endNode) {
+                console.log(distances)
+                return reconstructPathDijkstra(endNode, previousNodes);
+            }
+
+            count1NodesTrav++;
+            setTotalNodesTraversed(count1NodesTrav)
+            await sleep(1)
+    
+            // Remove the current node from unvisited nodes
+            unvisitedNodes.splice(unvisitedNodes.indexOf(currentNode), 1);
+    
+            // Update distances to neighbors
+            currentNode.neighbors.forEach(neighbor => {
+                const dist = CalculateDistance(currentNode.coordinates, neighbor.coordinates);
+
+                const distanceToNeighbor = distances[currentNode.id] + dist;
+                if (distanceToNeighbor < distances[neighbor.id]) {
+                    distances[neighbor.id] = distanceToNeighbor;
+                    previousNodes[neighbor.id] = currentNode; // Update previous node for neighbor
+                }
+            });
+        }
+    
+        return null; // No path found
+    }
+
+    function reconstructPathDijkstra(endNode, previousNodes) {
+        const path = [];
+        let currentNode = endNode;
+        while (currentNode) {
+            path.unshift(currentNode);
+            currentNode = previousNodes[currentNode.id];
+        }
+        RenderFinalPath(path);
+        return path;
     }
 
     // Function to reconstruct the path from start to end
@@ -240,7 +294,7 @@ function App() {
                 lat: path[i + 1].coordinates.lat,
                 lon: path[i + 1].coordinates.lon,
             };
-            distance += CalculateDistance("Haversine", node1, node2);
+            distance += CalculateDistance_Haversine(node1, node2);
             setPathDistance(distance);
             await sleep(50);
 
@@ -370,15 +424,13 @@ function App() {
         }
     }, [token]);
 
-
-    const ResetTraces = (saveTraces=false, selectedNodeIndex=-1) => {
+    const ResetTraces = (saveTraces = false, selectedNodeIndex = -1) => {
         let newTraces = [];
         for (let trace of traces) {
             if (trace.mode !== "lines") {
                 newTraces.push(trace);
             }
         }
-
 
         for (let i = 0; i < newTraces.length; i++) {
             if (newTraces[i].mode == "markers") {
@@ -390,13 +442,12 @@ function App() {
             }
         }
 
-        if(saveTraces){
+        if (saveTraces) {
             setTraces([...newTraces]);
         }
 
         return newTraces;
-    }
-
+    };
 
     const onClick = (e) => {
         console.log(layout);
@@ -421,6 +472,13 @@ function App() {
             node2Selection = GetNodeByCoord(point.lat, point.lon);
             setNode2Name(point.fullData.name);
 
+            //! clear previous AStar node.parent assigning
+            for (let node of gNodes) {
+                if (node.parent) {
+                    node.parent = null;
+                }
+            }
+
             if (node2Selection != null) {
                 console.log(
                     "pathfinding betweem",
@@ -431,13 +489,6 @@ function App() {
             }
             node1Selection = null;
             node2Selection = null;
-
-            //! clear previous AStar node.parent assigning
-            for (let node of gNodes) {
-                if (node.parent) {
-                    node.parent = null;
-                }
-            }
         } else {
             //TODO: disable clicking if mid-path find
             setNode1Name("");
@@ -451,7 +502,13 @@ function App() {
         // const startNode = GetNodeById(148); // Library
         // const endNode = GetNodeById(786); // OVAL
         console.log(startNode, endNode);
-        const path = AStar(startNode, endNode);
+        if (algoType == "astar") {
+            console.log("running a star");
+            const path = AStar(startNode, endNode);
+        } else if (algoType == "dijkstra") {
+            console.log("running dijkstra");
+            const path = dijkstra(startNode, endNode);
+        }
         return; // todo
 
         console.log(path);
@@ -486,23 +543,26 @@ function App() {
                     </div>
                 </div>
                 {/* <div width="100px"></div> */}
-                <div id = "stats_distance">
+                <div id="stats_distance">
                     <div>Distance: {pathDistance.toFixed(2)}m</div>
                     <div>
                         Est. Travel Time: {(pathDistance / 70).toFixed(0)}{" "}
                         Minutes
                     </div>
-                    <div>
-                        Nodes Traversed: {totalNodesTraversed}
-                    </div>
+                    <div>Nodes Traversed: {totalNodesTraversed}</div>
                 </div>
             </div>
             <div class="stats selectors">
                 <div>
                     <label for="heuristic_selector">Heuristic type</label>
                     <br></br>
-                    <select id="hueristic_selector"  onChange={onHeuristicChange}>
-                        <option value="Haversine" selected>Haversine</option>
+                    <select
+                        id="hueristic_selector"
+                        onChange={onHeuristicChange}
+                    >
+                        <option value="Haversine" selected>
+                            Haversine
+                        </option>
                         <option value="Euclidean">Euclidean</option>
                         <option value="Manhattan">Manhattan</option>
                     </select>
@@ -512,7 +572,9 @@ function App() {
                     <label for="algorithm_type">Algorithm type</label>
                     <br></br>
                     <select id="algorithm_type" onChange={onAlgorithmChange}>
-                        <option value="astar" selected>A*</option>
+                        <option value="astar" selected>
+                            A*
+                        </option>
                         <option value="dijkstra">Dijkstra's</option>
                         <option>Breadth First Search</option>
                     </select>
