@@ -51,7 +51,7 @@ module.exports.CalculateDistance_Haversine = (node1, node2) => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = earthRadius * c;
 
-    return distance;
+    return parseFloat(distance);
 };
 
 module.exports.CalculateDistance_Euclidean = (node1, node2) => {
@@ -61,14 +61,14 @@ module.exports.CalculateDistance_Euclidean = (node1, node2) => {
     const lon2 = node2.lon;
 
     const distance = Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lon2 - lon1, 2));
-    
-    return distance;
+    return parseFloat(distance);
 }
 
-module.exports.CalculateDistance_Manhttan = (node1, node2) => {
+module.exports.CalculateDistance_Manhattan = (node1, node2) => {
     const latDifference = Math.abs(node1.lat - node2.lat);
     const lonDifference = Math.abs(node1.lon - node2.lon);
-    return latDifference + lonDifference;
+    const distance = latDifference + lonDifference;
+    return parseFloat(distance);
 }
 
 

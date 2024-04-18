@@ -12,7 +12,7 @@ const {
     GetPlotlyLayout,
     CalculateDistance_Haversine,
     CalculateDistance_Euclidean,
-    CalculateDistance_Manhttan,
+    CalculateDistance_Manhattan,
     sleep,
 } = require("./Utility");
 
@@ -23,7 +23,9 @@ class Node {
         this.neighbors = [];
     }
     addNeighbor(neighborNode) {
-        this.neighbors.push(neighborNode);
+        if(!this.neighbors.includes(neighborNode)){
+            this.neighbors.push(neighborNode);
+        }
     }
 }
 
@@ -57,7 +59,7 @@ function App() {
         } else if (heuristicType == "Euclidean") {
             return CalculateDistance_Euclidean(node1, node2);
         } else if (heuristicType == "Manhattan") {
-            return CalculateDistance_Manhttan(node1, node2);
+            return CalculateDistance_Manhattan(node1, node2);
         }
 
         return CalculateDistance_Haversine(node1, node2);
@@ -102,7 +104,14 @@ function App() {
         GetNodeById(798).addNeighbor(GetNodeById(354));
         GetNodeById(354).addNeighbor(GetNodeById(798));
         // newNode1 += -37.8460620, 145.1136229
-        let newNode1 = new Node(805, 145.1136229, -37.846062);
+
+        let newNode1 = GetNodeByCoord(-37.846062, 145.1136229)
+        if(newNode1 == null){
+            newNode1 = new Node(802, 145.1136229, -37.846062);
+            console.log("INVALID NODE")
+        }else{
+            console.log("EXISTS")
+        }
 
         // connect 601 to newNode1
         GetNodeById(601).addNeighbor(newNode1);
@@ -110,8 +119,10 @@ function App() {
 
         // newNode2 += -37.8461351, 145.1137048
         startNodeID++;
-        let newNode2 = new Node(806, 145.1137048, -37.8461351);
-
+        let newNode2 = GetNodeByCoord(-37.8461351, 145.1137048)
+        if(newNode2 == null){
+            newNode2 = new Node(805, 145.1136229, -37.846062);
+        }
         // connect node HF/762 to newNode2
         newNode2.addNeighbor(GetNodeById(762));
         GetNodeById(762).addNeighbor(newNode2);
@@ -189,7 +200,7 @@ function App() {
         let fScore = {}; // Map to store the estimated total cost from start to goal through a node
 
         gScore[startNode] = 0;
-        fScore[startNode] = CalculateDistance(startNode, endNode);
+        fScore[startNode] = CalculateDistance(startNode.coordinates, endNode.coordinates);
 
         let count1 = 0;
         let count2 = 0;
@@ -227,8 +238,9 @@ function App() {
                 count1++;
 
                 // f = g(node) + h(node)
+                let dist = CalculateDistance(current.coordinates, neighbor.coordinates);
                 let tentativeGScore =
-                    gScore[current] + CalculateDistance(current, neighbor);
+                    gScore[current] + dist;
 
                 // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
                 // await sleep();
@@ -245,7 +257,7 @@ function App() {
 
                     gScore[neighbor] = tentativeGScore;
                     fScore[neighbor] =
-                        gScore[neighbor] + CalculateDistance(neighbor, endNode);
+                        gScore[neighbor] + CalculateDistance(neighbor.coordinates, endNode.coordinates);
 
                     if (!openSet.includes(neighbor)) {
                         // AddNewPath(current, neighbor, "green", "s");
@@ -422,7 +434,6 @@ function App() {
     }
 
     function AddNewPath(node1, node2, color = "red", label = "") {
-        console.log(node1);
         let newTrace = {
             type: "scattermapbox",
             mode: "lines",
@@ -436,16 +447,9 @@ function App() {
             showLegend: false,
         };
 
-        // let newTraces = [];
-        // for(let oldtrace of traces){
-        // newTraces.push(oldtrace)
-        // }
-        // newTraces.push(newTrace);
-        // console.log(traces)
-        // traces.dataValues.push(newTrace);
+
         traces.push(newTrace);
         setTraces([...traces]);
-        console.log("adding new trace");
         return newTrace;
     }
 
@@ -568,9 +572,6 @@ function App() {
     };
 
     const onClick = (e) => {
-        console.log(layout);
-        console.log(e.points[0]);
-        console.log(traces);
 
         let index = e.points[0].fullData.index;
         if (e.points[0].data.mode !== "markers") {
@@ -581,7 +582,6 @@ function App() {
         ResetTraces(true, index);
 
         const point = e.points[0];
-        console.log(point.lat, point.lon);
         if (node1Selection === null) {
             node1Selection = GetNodeByCoord(point.lat, point.lon);
             setNode1Name(point.fullData.name);
@@ -598,11 +598,6 @@ function App() {
             }
 
             if (node2Selection != null) {
-                console.log(
-                    "pathfinding betweem",
-                    node1Selection,
-                    node2Selection
-                );
                 DoPathFind(node1Selection, node2Selection);
             }
             node1Selection = null;
@@ -619,7 +614,6 @@ function App() {
     function DoPathFind(startNode, endNode) {
         // const startNode = GetNodeById(148); // Library
         // const endNode = GetNodeById(786); // OVAL
-        console.log(startNode, endNode);
         if (algoType == "astar") {
             console.log("running a star");
             const path = AStar(startNode, endNode);
@@ -645,9 +639,6 @@ function App() {
         return null;
     }
 
-    const onMouseMove = (e) => {
-        console.log(e);
-    };
 
     return (
         <div className="App">
