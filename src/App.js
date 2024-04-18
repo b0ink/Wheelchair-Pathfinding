@@ -8,42 +8,30 @@ let gPaths = [];
 let node1Selection = null;
 let node2Selection = null;
 
-const CalculateDistance = require("./CalculateDistance");
 
-function toRadians(degrees) {
-    return (degrees * Math.PI) / 180;
-}
-function calculateDistance(node1, node2) {
-    // return CalculateDistance.distVincenty(
-    //     node1.lat,
-    //     node1.lon,
-    //     node2.lat,
-    //     node2.lon
-    // );
+const {GetPlotlyLayout, CalculateDistance_Haversine, sleep} = require('./Utility');
 
-    // return euclideanDistance(node1, node2);
 
-    const earthRadius = 6371000; // Earth's radius in meters
-    const lat1 = node1.lat;
-    const lon1 = node1.lon;
-    const lat2 = node2.lat;
-    const lon2 = node2.lon;
-
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-            Math.cos((lat2 * Math.PI) / 180) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = earthRadius * c;
-
-    return distance;
+class Node {
+    constructor(id, lon, lat) {
+        this.id = id;
+        this.coordinates = { lon, lat };
+        this.neighbors = [];
+    }
+    addNeighbor(neighborNode) {
+        this.neighbors.push(neighborNode);
+    }
 }
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Only used for easy management and rendering paths
+class Path {
+    constructor(startNode, endNode, cost) {
+        this.startNode = startNode;
+        this.endNode = endNode;
+        this.cost = cost;
+    }
+}
 
 function App() {
     const [traces, setTraces] = useState([]);
@@ -91,7 +79,7 @@ function App() {
         let fScore = {}; // Map to store the estimated total cost from start to goal through a node
 
         gScore[startNode] = 0;
-        fScore[startNode] = calculateDistance(startNode, endNode);
+        fScore[startNode] = CalculateDistance_Haversine(startNode, endNode);
 
         let count1 = 0;
         let count2 = 0;
@@ -123,7 +111,7 @@ function App() {
 
                 // f = g(node) + h(node)
                 let tentativeGScore =
-                    gScore[current] + calculateDistance(current, neighbor);
+                    gScore[current] + CalculateDistance_Haversine(current, neighbor);
 
                 // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
                 // await sleep();
@@ -140,7 +128,7 @@ function App() {
 
                     gScore[neighbor] = tentativeGScore;
                     fScore[neighbor] =
-                        gScore[neighbor] + calculateDistance(neighbor, endNode);
+                        gScore[neighbor] + CalculateDistance_Haversine(neighbor, endNode);
 
                     if (!openSet.includes(neighbor)) {
                         // AddNewPath(current, neighbor, "green", "s");
@@ -152,7 +140,7 @@ function App() {
                 }
             }
         }
-
+        GetPlotlyLayout
         return null; // No path found
     }
 
@@ -195,7 +183,7 @@ function App() {
                 lat: path[i + 1].coordinates.lat,
                 lon: path[i + 1].coordinates.lon,
             };
-            distance += calculateDistance(node1, node2);
+            distance += CalculateDistance_Haversine(node1, node2);
             setPathDistance(distance);
             await sleep(50);
 
@@ -204,27 +192,6 @@ function App() {
         console.log("DISTANCE TO GET THERE:, ", distance);
     }
 
-    class Node {
-        constructor(id, lon, lat) {
-            this.id = id;
-            this.coordinates = { lon, lat };
-            this.neighbors = [];
-        }
-        addNeighbor(neighborNode) {
-            this.neighbors.push(neighborNode);
-        }
-    }
-
-    // n1
-    // n2,AddNeighbor(n1)
-
-    class Path {
-        constructor(startNode, endNode, cost) {
-            this.startNode = startNode;
-            this.endNode = endNode;
-            this.cost = cost;
-        }
-    }
 
     function AddNewPath(node1, node2, color = "red", label = "") {
         console.log(node1);
@@ -255,34 +222,7 @@ function App() {
     }
 
     // const layout = {
-    const [layout, setLayout] = useState({
-        responsive: true,
-        useResizeHandler: true,
-        autosize: true,
-        width: window.innerWidth,
-        height: window.innerHeight,
-        margin: {
-            l: 25,
-            r: 25,
-            b: 50,
-            t: 50,
-            pad: 0,
-        },
-        legend: {
-            bgcolor: "#313b3c",
-            font: {
-                color: "#FFF",
-            },
-        },
-        paper_bgcolor: "#313b3c",
-        hovermode: "closest",
-        clickmode: "event",
-        mapbox: {
-            style: "open-street-map",
-            center: { lon: 145.11280923809354, lat: -37.847196668316924 },
-            zoom: 16,
-        },
-    });
+    const [layout, setLayout] = useState(GetPlotlyLayout(window));
 
     function GetNodeById(id) {
         for (let node of gNodes) {
@@ -365,45 +305,11 @@ function App() {
     };
 
     useEffect(() => {
-        // if (!dataRetrieved) {
-        //     console.log("test");
-        //     dataRetrieved = true;
-        // }
         if (token == null) {
             getData();
 
             window.addEventListener("resize", (e) => {
-                setLayout({
-                    responsive: true,
-                    useResizeHandler: true,
-                    autosize: true,
-                    width: window.innerWidth,
-                    height: window.innerHeight,
-                    margin: {
-                        l: 25,
-                        r: 25,
-                        b: 50,
-                        t: 50,
-                        pad: 0,
-                    },
-                    legend: {
-                        bgcolor: "#313b3c",
-                        font: {
-                            color: "#FFF",
-                        },
-                    },
-                    paper_bgcolor: "#313b3c",
-                    hovermode: "closest",
-                    clickmode: "event",
-                    mapbox: {
-                        style: "open-street-map",
-                        center: {
-                            lon: 145.11280923809354,
-                            lat: -37.847196668316924,
-                        },
-                        zoom: 16,
-                    },
-                });
+                setLayout(GetPlotlyLayout(window));
             });
         }
     }, [token]);
