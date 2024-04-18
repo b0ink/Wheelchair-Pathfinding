@@ -156,7 +156,7 @@ function App() {
     async function runTests(e) {
         e.preventDefault();
 
-        if(!confirm("This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks. Press ok to continue.")){
+        if(!confirm("This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks.\n\nAnother alert will confirm the completion, results will be in the console.\n\nPress ok to continue.")){
             return;
         }
 
