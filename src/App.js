@@ -11,6 +11,7 @@ let node2Selection = null;
 const {
     GetPlotlyLayout,
     CalculateDistance_Haversine,
+    CalculateDistance_Euclidean,
     sleep,
 } = require("./Utility");
 
@@ -58,6 +59,15 @@ function App() {
 
     const [heuristicType, setHeuristicType] = useState("Haversine");
     
+    const ResetNav = () => {
+        setPathDistance(0);
+        setNode1Name("");
+        setNode2Name("");
+
+        node1Selection = null;
+        node2Selection = null;
+    }
+
     const onHeuristicChange = (e) => {
         e.preventDefault();
         let type = e.target.value;
@@ -65,11 +75,15 @@ function App() {
             type = "Euclidean";
         }
         setHeuristicType(type)
+        ResetTraces(true);
+        ResetNav();
     }
 
 
     const [algoType, setAlgoType] = useState("astar");
     
+
+
     const onAlgorithmChange = (e) => {
         e.preventDefault();
         let type = e.target.value;
@@ -77,6 +91,8 @@ function App() {
             type = "astar";
         }
         setAlgoType(type)
+        ResetTraces(true);
+        ResetNav();
     }
 
     function HotFixMissingPaths(startNodeID) {
@@ -116,7 +132,7 @@ function App() {
         let fScore = {}; // Map to store the estimated total cost from start to goal through a node
 
         gScore[startNode] = 0;
-        fScore[startNode] = CalculateDistance("Haversine", startNode, endNode);
+        fScore[startNode] = CalculateDistance(heuristicType, startNode, endNode);
 
         let count1 = 0;
         let count2 = 0;
@@ -149,7 +165,7 @@ function App() {
                 // f = g(node) + h(node)
                 let tentativeGScore =
                     gScore[current] +
-                    CalculateDistance("Haversine", current, neighbor);
+                    CalculateDistance(heuristicType, current, neighbor);
 
                 // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
                 // await sleep();
@@ -167,7 +183,7 @@ function App() {
                     gScore[neighbor] = tentativeGScore;
                     fScore[neighbor] =
                         gScore[neighbor] +
-                        CalculateDistance("Haversine", neighbor, endNode);
+                        CalculateDistance(heuristicType, neighbor, endNode);
 
                     if (!openSet.includes(neighbor)) {
                         // AddNewPath(current, neighbor, "green", "s");
@@ -179,7 +195,7 @@ function App() {
                 }
             }
         }
-        GetPlotlyLayout;
+        // GetPlotlyLayout;
         return null; // No path found
     }
 
@@ -352,6 +368,34 @@ function App() {
         }
     }, [token]);
 
+
+    const ResetTraces = (saveTraces=false, selectedNodeIndex=-1) => {
+        let newTraces = [];
+        for (let trace of traces) {
+            if (trace.mode !== "lines") {
+                newTraces.push(trace);
+            }
+        }
+
+
+        for (let i = 0; i < newTraces.length; i++) {
+            if (newTraces[i].mode == "markers") {
+                if (i == selectedNodeIndex) {
+                    newTraces[i].marker.color = "red";
+                } else {
+                    newTraces[i].marker.color = "blue";
+                }
+            }
+        }
+
+        if(saveTraces){
+            setTraces([...newTraces]);
+        }
+
+        return newTraces;
+    }
+
+
     const onClick = (e) => {
         console.log(layout);
         console.log(e.points[0]);
@@ -363,24 +407,7 @@ function App() {
             return;
         }
 
-        let newTraces = [];
-        for (let trace of traces) {
-            if (trace.mode !== "lines") {
-                newTraces.push(trace);
-            }
-        }
-        // setTraces([...newTraces]);
-
-        for (let i = 0; i < newTraces.length; i++) {
-            if (newTraces[i].mode == "markers") {
-                if (i == index) {
-                    newTraces[i].marker.color = "red";
-                } else {
-                    newTraces[i].marker.color = "blue";
-                }
-            }
-        }
-        setTraces([...newTraces]);
+        ResetTraces(true, index);
 
         const point = e.points[0];
         console.log(point.lat, point.lon);
@@ -462,6 +489,9 @@ function App() {
                     <div>
                         Est. Travel Time: {(pathDistance / 70).toFixed(0)}{" "}
                         Minutes
+                    </div>
+                    <div>
+                        Nodes Traversed
                     </div>
                 </div>
             </div>
