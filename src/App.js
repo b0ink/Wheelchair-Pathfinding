@@ -12,6 +12,7 @@ const {
     GetPlotlyLayout,
     CalculateDistance_Haversine,
     CalculateDistance_Euclidean,
+    CalculateDistance_Manhttan,
     sleep,
 } = require("./Utility");
 
@@ -55,6 +56,8 @@ function App() {
             return CalculateDistance_Haversine(node1, node2);
         } else if (heuristicType == "Euclidean") {
             return CalculateDistance_Euclidean(node1, node2);
+        }else if(heuristicType == "Manhattan"){
+            return CalculateDistance_Manhttan(node1, node2);
         }
 
         return CalculateDistance_Haversine(node1, node2);
@@ -162,6 +165,9 @@ function App() {
                     continue;
                 }
 
+                count1++;
+
+
                 // f = g(node) + h(node)
                 let tentativeGScore =
                     gScore[current] + CalculateDistance(current, neighbor);
@@ -217,20 +223,24 @@ function App() {
                 distances[node.id] < distances[minNode.id] ? node : minNode
             );
     
+            count1NodesTrav++;
+
+            setTotalNodesTraversed(count1NodesTrav)
+            await sleep(1);
+
             if (currentNode === endNode) {
                 console.log(distances)
                 return reconstructPathDijkstra(endNode, previousNodes);
             }
 
-            count1NodesTrav++;
-            setTotalNodesTraversed(count1NodesTrav)
-            await sleep(1)
     
             // Remove the current node from unvisited nodes
             unvisitedNodes.splice(unvisitedNodes.indexOf(currentNode), 1);
     
             // Update distances to neighbors
             currentNode.neighbors.forEach(neighbor => {
+                count1NodesTrav++;
+
                 const dist = CalculateDistance(currentNode.coordinates, neighbor.coordinates);
 
                 const distanceToNeighbor = distances[currentNode.id] + dist;

@@ -65,4 +65,11 @@ module.exports.CalculateDistance_Euclidean = (node1, node2) => {
     return distance;
 }
 
+module.exports.CalculateDistance_Manhttan = (node1, node2) => {
+    const latDifference = Math.abs(node1.lat - node2.lat);
+    const lonDifference = Math.abs(node1.lon - node2.lon);
+    return latDifference + lonDifference;
+}
+
+
 module.exports.sleep = (ms) => new Promise((r) => setTimeout(r, ms));
