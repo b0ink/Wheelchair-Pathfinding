@@ -56,7 +56,7 @@ function App() {
             return CalculateDistance_Haversine(node1, node2);
         } else if (heuristicType == "Euclidean") {
             return CalculateDistance_Euclidean(node1, node2);
-        }else if(heuristicType == "Manhattan"){
+        } else if (heuristicType == "Manhattan") {
             return CalculateDistance_Manhttan(node1, node2);
         }
 
@@ -126,7 +126,63 @@ function App() {
         return [newNode1, newNode2];
     }
 
-    async function AStar(startNode, endNode) {
+    const calculatePathCost = (path) => {
+        let distance = 0;
+        for (let i = 0; i < path.length - 1; i++) {
+            let node1 = {
+                lat: path[i].coordinates.lat,
+                lon: path[i].coordinates.lon,
+            };
+            let node2 = {
+                lat: path[i + 1].coordinates.lat,
+                lon: path[i + 1].coordinates.lon,
+            };
+            distance += CalculateDistance_Haversine(node1, node2);
+        }
+
+        return distance;
+    };
+
+    async function runTests(e) {
+        e.preventDefault();
+        let node1 = GetNodeById(92); // Building G
+        let node2 = GetNodeById(361); // Hungry jacks
+
+        // TODO: render final path in different colors
+        const astarResult = await AStar(node1, node2, true);
+        ResetNav();
+        const dijkstraResult = await dijkstra(node1, node2, true);
+        ResetNav();
+        const bfsResult = await breadthFirstSearch(node1, node2, true);
+        ResetNav();
+
+        const aStarDistance = calculatePathCost(astarResult.path);
+        const dijkstraDistance = calculatePathCost(dijkstraResult.path);
+        const bfsDistance = calculatePathCost(bfsResult.path);
+
+        alert("Check the developer console for results");
+
+        console.log(
+            "A* :: Nodes Traversed:",
+            astarResult.nodesTraversed,
+            "Distance:",
+            aStarDistance
+        );
+        console.log(
+            "Dijkstra :: Nodes Traversed:",
+            dijkstraResult.nodesTraversed,
+            "Distance:",
+            dijkstraDistance
+        );
+        console.log(
+            "Breadth-First Search:: Nodes Traversed:",
+            bfsResult.nodesTraversed,
+            "Distance:",
+            bfsDistance
+        );
+    }
+
+    async function AStar(startNode, endNode, debug=false) {
         let openSet = [startNode];
         let closedSet = [];
         let gScore = {}; // Map to store the cost from start along best known path
@@ -141,7 +197,7 @@ function App() {
         let notGoodEnoughNodes = [];
         while (openSet.length > 0) {
             count1++;
-            await sleep(1);
+            if(!debug) await sleep(1);
             setTotalNodesTraversed(count1);
 
             let current = openSet.reduce((minNode, node) =>
@@ -151,7 +207,10 @@ function App() {
             if (current === endNode) {
                 console.log("count1", count1);
                 console.log("count2", count2);
-                return reconstructPath(endNode);
+                return {
+                    path: reconstructPath(endNode),
+                    nodesTraversed: count1,
+                };
             }
 
             openSet = openSet.filter((node) => node !== current);
@@ -166,7 +225,6 @@ function App() {
                 }
 
                 count1++;
-
 
                 // f = g(node) + h(node)
                 let tentativeGScore =
@@ -202,17 +260,17 @@ function App() {
         return null; // No path found
     }
 
-    async function dijkstra(startNode, endNode) {
+    async function dijkstra(startNode, endNode, debug=false) {
         // Initialize distances to all nodes as infinity except for the start node
         let distances = {};
         let previousNodes = {};
-        gNodes.forEach(node => {
+        gNodes.forEach((node) => {
             distances[node.id] = node === startNode ? 0 : Infinity;
             previousNodes[node.id] = null;
         });
 
         console.log(distances);
-    
+
         let count1NodesTrav = 0;
         let count2 = 0;
         // Main loop
@@ -222,26 +280,31 @@ function App() {
             const currentNode = unvisitedNodes.reduce((minNode, node) =>
                 distances[node.id] < distances[minNode.id] ? node : minNode
             );
-    
+
             count1NodesTrav++;
 
-            setTotalNodesTraversed(count1NodesTrav)
-            await sleep(1);
+            setTotalNodesTraversed(count1NodesTrav);
+            if(!debug) await sleep(1);
 
             if (currentNode === endNode) {
-                console.log(distances)
-                return reconstructPathDijkstra(endNode, previousNodes);
+                console.log(distances);
+                return {
+                    path: reconstructPathDijkstra(endNode, previousNodes),
+                    nodesTraversed: count1NodesTrav,
+                };
             }
 
-    
             // Remove the current node from unvisited nodes
             unvisitedNodes.splice(unvisitedNodes.indexOf(currentNode), 1);
-    
+
             // Update distances to neighbors
-            currentNode.neighbors.forEach(neighbor => {
+            currentNode.neighbors.forEach((neighbor) => {
                 count1NodesTrav++;
 
-                const dist = CalculateDistance(currentNode.coordinates, neighbor.coordinates);
+                const dist = CalculateDistance(
+                    currentNode.coordinates,
+                    neighbor.coordinates
+                );
 
                 const distanceToNeighbor = distances[currentNode.id] + dist;
                 if (distanceToNeighbor < distances[neighbor.id]) {
@@ -250,7 +313,7 @@ function App() {
                 }
             });
         }
-    
+
         return null; // No path found
     }
 
@@ -265,24 +328,27 @@ function App() {
         return path;
     }
 
-    async function breadthFirstSearch(startNode, endNode) {
+    async function breadthFirstSearch(startNode, endNode, debug=false) {
         const queue = [startNode];
         const visited = new Set();
         const previousNodes = {};
-    
+
         let countNodesTraversed = 0;
         while (queue.length > 0) {
             const currentNode = queue.shift();
             countNodesTraversed++;
-            await sleep(1)
+            if(!debug) await sleep(1);
             setTotalNodesTraversed(countNodesTraversed);
 
             if (currentNode === endNode) {
-                return reconstructPathBFS(startNode, endNode, previousNodes);
+                return {
+                    path: reconstructPathBFS(startNode, endNode, previousNodes),
+                    nodesTraversed: countNodesTraversed,
+                };
             }
-    
+
             visited.add(currentNode);
-    
+
             for (const neighbor of currentNode.neighbors) {
                 countNodesTraversed++;
                 if (!visited.has(neighbor)) {
@@ -291,22 +357,22 @@ function App() {
                 }
             }
         }
-    
+
         return null;
     }
 
     // Reconstruct the shortest path from start node to end node
-function reconstructPathBFS(startNode, endNode, previousNodes) {
-    const path = [];
-    let currentNode = endNode;
-    while (currentNode !== startNode) {
-        path.unshift(currentNode);
-        currentNode = previousNodes[currentNode.id];
+    function reconstructPathBFS(startNode, endNode, previousNodes) {
+        const path = [];
+        let currentNode = endNode;
+        while (currentNode !== startNode) {
+            path.unshift(currentNode);
+            currentNode = previousNodes[currentNode.id];
+        }
+        path.unshift(startNode);
+        RenderFinalPath(path);
+        return path;
     }
-    path.unshift(startNode);
-    RenderFinalPath(path);
-    return path;
-}
 
     // Function to reconstruct the path from start to end
     function reconstructPath(currentNode) {
@@ -353,7 +419,6 @@ function reconstructPathBFS(startNode, endNode, previousNodes) {
 
             // Plotly.addTrace('plot', newTrace)
         }
-        console.log("DISTANCE TO GET THERE:, ", distance);
     }
 
     function AddNewPath(node1, node2, color = "red", label = "") {
@@ -561,7 +626,7 @@ function reconstructPathBFS(startNode, endNode, previousNodes) {
         } else if (algoType == "dijkstra") {
             console.log("running dijkstra");
             const path = dijkstra(startNode, endNode);
-        }else if (algoType == "bfs") {
+        } else if (algoType == "bfs") {
             const path = breadthFirstSearch(startNode, endNode);
         }
         return; // todo
@@ -622,7 +687,7 @@ function reconstructPathBFS(startNode, endNode, previousNodes) {
                         <option value="Manhattan">Manhattan</option>
                     </select>
                 </div>
-
+                <button onClick={runTests}>Run Tests</button>
                 <div>
                     <label for="algorithm_type">Algorithm type</label>
                     <br></br>
