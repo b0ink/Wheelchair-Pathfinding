@@ -42,6 +42,10 @@ const heuristics = ["Haversine", "Euclidean", "Manhattan"];
 const algorithms = ["astar", "dijkstra", "bfs"];
 
 function App() {
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const loadAllTraces = queryParams.get('loadAllTraces');
+
     const [traces, setTraces] = useState([]);
     const [token, setToken] = useState(null);
 
@@ -532,11 +536,27 @@ function App() {
             },
         }));
 
-        // setTraces([...nodeTraces, ...edgeTraces]);
-        setTraces([...nodeTraces]);
+        // Prevent traces being rendered on every page reload if param is still there
+        const timeDiff = (Date.now() - loadAllTraces)/1000;
+        // only if called within 3 seconds
+        if(loadAllTraces && timeDiff < 3 && timeDiff > 0){ 
+                console.log("Loading all traces");
+                setTraces([...nodeTraces, ...edgeTraces]);
+        }else{
+            // only render labelled nodes
+            setTraces([...nodeTraces]);
+        }
 
         setToken(true);
     };
+
+    const renderAllTraces = (e) => {
+        e.preventDefault();
+        if(!confirm("Are you sure you want to render all 800+ traces?\n\nThis may take some time to load and is not recommended on slow devices")){
+            return;
+        }
+        window.location.href = window.origin + "?loadAllTraces="+Date.now()
+    }
 
     useEffect(() => {
         if (token == null) {
@@ -682,6 +702,7 @@ function App() {
                     </select>
                 </div>
                 <button onClick={runTests}>Run Tests</button>
+                <button onClick={renderAllTraces}>Render all traces</button>
                 <div>
                     <label for="algorithm_type">Algorithm type</label>
                     <br></br>
