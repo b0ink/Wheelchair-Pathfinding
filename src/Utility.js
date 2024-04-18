@@ -4,12 +4,12 @@ module.exports.GetPlotlyLayout = (window) => {
         useResizeHandler: true,
         autosize: true,
         width: window.innerWidth,
-        height: window.innerHeight,
+        height: window.innerHeight-200,
         margin: {
             l: 25,
             r: 25,
             b: 50,
-            t: 50,
+            t: 25,
             pad: 0,
         },
         legend: {
