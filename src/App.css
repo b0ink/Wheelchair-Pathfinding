@@ -29,6 +29,12 @@
   margin: 10px 0  ;
 }
 
+.stats.tooltip{
+  text-align: center;
+  font-size: 16px;
+  color: lightblue;
+}
+
 .App {
   /* text-align: center; */
   width: 100vw;

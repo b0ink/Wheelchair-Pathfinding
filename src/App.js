@@ -639,7 +639,7 @@ function App() {
 
     return (
         <div className="App">
-            <div class="stats">
+            <div className="stats">
                 <div id="stats_nodes">
                     <div id="node1">
                         <span>Node 1: </span>
@@ -660,7 +660,7 @@ function App() {
                     <div>Nodes Traversed: {totalNodesTraversed}</div>
                 </div>
             </div>
-            <div class="stats selectors">
+            <div className="stats selectors">
                 <div>
                     <label for="heuristic_selector">Heuristic type</label>
                     <br></br>
@@ -687,6 +687,9 @@ function App() {
                         <option value="bfs">Breadth First Search</option>
                     </select>
                 </div>
+            </div>
+            <div className="stats tooltip">
+                <span>Click on two individual nodes to determine the best route based on the selected algorithm</span>
             </div>
 
             <Plot
