@@ -99,7 +99,6 @@ function App() {
     };
 
     function HotFixMissingPaths(startNodeID) {
-        console.log("starting index at", startNodeID);
         // connect node 798 to 354
         GetNodeById(798).addNeighbor(GetNodeById(354));
         GetNodeById(354).addNeighbor(GetNodeById(798));
@@ -108,9 +107,6 @@ function App() {
         let newNode1 = GetNodeByCoord(-37.846062, 145.1136229)
         if(newNode1 == null){
             newNode1 = new Node(802, 145.1136229, -37.846062);
-            console.log("INVALID NODE")
-        }else{
-            console.log("EXISTS")
         }
 
         // connect 601 to newNode1
@@ -121,7 +117,7 @@ function App() {
         startNodeID++;
         let newNode2 = GetNodeByCoord(-37.8461351, 145.1137048)
         if(newNode2 == null){
-            newNode2 = new Node(805, 145.1136229, -37.846062);
+            newNode2 = new Node(805, 145.1137048, -37.8461351);
         }
         // connect node HF/762 to newNode2
         newNode2.addNeighbor(GetNodeById(762));
@@ -194,6 +190,8 @@ function App() {
     }
 
     async function AStar(startNode, endNode, debug=false) {
+        //TODO: track memory usage (array sizes)
+
         let openSet = [startNode];
         let closedSet = [];
         let gScore = {}; // Map to store the cost from start along best known path
@@ -205,7 +203,6 @@ function App() {
         let count1 = 0;
         let count2 = 0;
 
-        let notGoodEnoughNodes = [];
         while (openSet.length > 0) {
             count1++;
             if(!debug) await sleep(1);
@@ -216,8 +213,6 @@ function App() {
             );
 
             if (current === endNode) {
-                console.log("count1", count1);
-                console.log("count2", count2);
                 return {
                     path: reconstructPath(endNode),
                     nodesTraversed: count1,
@@ -281,7 +276,6 @@ function App() {
             previousNodes[node.id] = null;
         });
 
-        console.log(distances);
 
         let count1NodesTrav = 0;
         let count2 = 0;
@@ -299,7 +293,6 @@ function App() {
             if(!debug) await sleep(1);
 
             if (currentNode === endNode) {
-                console.log(distances);
                 return {
                     path: reconstructPathDijkstra(endNode, previousNodes),
                     nodesTraversed: count1NodesTrav,
@@ -630,7 +623,6 @@ function App() {
         console.log("updating route colros?");
     }
     function GetNodeByCoord(lat, lon) {
-        console.log(gNodes);
         for (let node of gNodes) {
             if (node.coordinates.lat == lat && node.coordinates.lon == lon) {
                 return node;
