@@ -167,6 +167,7 @@ function App() {
         let node1 = GetNodeById(92); // Building G
         let node2 = GetNodeById(361); // Hungry jacks
 
+        ResetNav();
         // TODO: render final path in different colors
         const astarResult = await AStar(node1, node2, true);
         ResetNav();
@@ -193,7 +194,12 @@ function App() {
 
     async function AStar(startNode, endNode, debug=false) {
         //TODO: track memory usage (array sizes)
-
+        for (let node of gNodes) {
+            if (node.parent) {
+                node.parent = null;
+            }
+        }
+        
         let openSet = [startNode];
         let closedSet = [];
         let gScore = {}; // Map to store the cost from start along best known path
