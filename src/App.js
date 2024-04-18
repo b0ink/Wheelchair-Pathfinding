@@ -33,6 +33,14 @@ class Path {
     }
 }
 
+const CalculateDistance = (heuristicType, node1, node2) => {
+    if(heuristicType == "Haversine"){
+        return CalculateDistance_Haversine(node1, node2);
+    }
+
+    return CalculateDistance_Haversine(node1, node2);
+}
+
 function App() {
     const [traces, setTraces] = useState([]);
     const [token, setToken] = useState(null);
@@ -79,7 +87,7 @@ function App() {
         let fScore = {}; // Map to store the estimated total cost from start to goal through a node
 
         gScore[startNode] = 0;
-        fScore[startNode] = CalculateDistance_Haversine(startNode, endNode);
+        fScore[startNode] = CalculateDistance("Haversine", startNode, endNode);
 
         let count1 = 0;
         let count2 = 0;
@@ -111,7 +119,7 @@ function App() {
 
                 // f = g(node) + h(node)
                 let tentativeGScore =
-                    gScore[current] + CalculateDistance_Haversine(current, neighbor);
+                    gScore[current] +  CalculateDistance("Haversine", current, neighbor);
 
                 // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
                 // await sleep();
@@ -128,7 +136,7 @@ function App() {
 
                     gScore[neighbor] = tentativeGScore;
                     fScore[neighbor] =
-                        gScore[neighbor] + CalculateDistance_Haversine(neighbor, endNode);
+                        gScore[neighbor] +  CalculateDistance("Haversine", neighbor, endNode);
 
                     if (!openSet.includes(neighbor)) {
                         // AddNewPath(current, neighbor, "green", "s");
@@ -169,7 +177,7 @@ function App() {
                 lat: [path[i].coordinates.lat, path[i + 1].coordinates.lat],
                 line: {
                     width: 4,
-                    color: "blue",
+                    color: "fuchsia",
                 },
             };
 
@@ -183,7 +191,7 @@ function App() {
                 lat: path[i + 1].coordinates.lat,
                 lon: path[i + 1].coordinates.lon,
             };
-            distance += CalculateDistance_Haversine(node1, node2);
+            distance +=  CalculateDistance("Haversine", node1, node2);
             setPathDistance(distance);
             await sleep(50);
 
