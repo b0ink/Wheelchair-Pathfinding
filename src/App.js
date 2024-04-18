@@ -49,6 +49,8 @@ function App() {
     const [node2Name, setNode2Name] = useState("");
 
     const [pathDistance, setPathDistance] = useState(0);
+    const [pathNodeCount, setPathNodeCount] = useState(0);
+
     const [totalNodesTraversed, setTotalNodesTraversed] = useState(0);
 
     const [heuristicType, setHeuristicType] = useState("Haversine");
@@ -70,6 +72,7 @@ function App() {
         setNode1Name("");
         setNode2Name("");
         setTotalNodesTraversed(0);
+        setPathNodeCount(0);
         node1Selection = null;
         node2Selection = null;
     };
@@ -425,6 +428,7 @@ function App() {
             };
             distance += CalculateDistance_Haversine(node1, node2);
             setPathDistance(distance);
+            setPathNodeCount(path.length);
             await sleep(50);
 
             // Plotly.addTrace('plot', newTrace)
@@ -643,16 +647,18 @@ function App() {
                 <div id="stats_nodes">
                     <div id="node1">
                         <span>Node 1: </span>
-                        {node1Name ?? "N/A"}
+                        {node1Name ? node1Name : "(none selected)"}
+             
                     </div>
                     <div id="node2">
                         <span>Node 2: </span>
-                        {node2Name}
+                        {node2Name ? node2Name : "(none selected)"}
+
                     </div>
                 </div>
                 {/* <div width="100px"></div> */}
                 <div id="stats_distance">
-                    <div>Distance: {pathDistance.toFixed(2)}m</div>
+                    <div>Distance: {pathDistance.toFixed(2)}m <span id="totalnodes">({pathNodeCount} nodes)</span></div>
                     <div>
                         Est. Travel Time: {(pathDistance / 70).toFixed(0)}{" "}
                         Minutes
