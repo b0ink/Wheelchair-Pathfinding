@@ -2,6 +2,31 @@ const fs= require('fs')
 var nodes = [];
 var paths = [];
 
+
+
+function RetrieveOSMData(){
+    // Paste this in the OSM iD editor developer console to retrieve `OSM-Export.json` data
+    // (Assuming ways are selected)
+
+    let ways = window.context.selectedIDs();
+    let wayswithnodes = []
+    for (let way of ways) {
+        console.log(way)
+        let nodes = window.iD.utilGetAllNodes([way], window.context.graph());
+        for (let node of nodes) {
+            delete node.user;
+            delete node.uid;
+            delete node.changeset;
+            delete node.timestamp;
+        }
+        wayswithnodes.push(nodes)
+    }
+    console.log(wayswithnodes) // OSM-Export.json
+}
+
+
+
+
 function parse(){
     let index =1 ;
     const data = require('./OSM-Export.json');
