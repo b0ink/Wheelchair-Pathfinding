@@ -160,7 +160,7 @@ function App() {
     async function runTests(e) {
         e.preventDefault();
 
-        if(!confirm("This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks.\n\nAnother alert will confirm the completion, results will be in the console.\n\nPress ok to continue.")){
+        if(!confirm("This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks.\n\nPress ok to continue.")){
             return;
         }
 
@@ -179,26 +179,16 @@ function App() {
         const dijkstraDistance = calculatePathCost(dijkstraResult.path);
         const bfsDistance = calculatePathCost(bfsResult.path);
 
-        alert("Check the developer console for results");
 
-        console.log(
-            "A* :: Nodes Traversed:",
-            astarResult.nodesTraversed,
-            "Distance:",
-            aStarDistance
-        );
-        console.log(
-            "Dijkstra :: Nodes Traversed:",
-            dijkstraResult.nodesTraversed,
-            "Distance:",
-            dijkstraDistance
-        );
-        console.log(
-            "Breadth-First Search:: Nodes Traversed:",
-            bfsResult.nodesTraversed,
-            "Distance:",
-            bfsDistance
-        );
+        let output = "";
+        output += `A-Star: Nodes Traversed: ${astarResult.nodesTraversed}. Distance: ${aStarDistance.toFixed(2)}m\n\n`;
+        output += `Dijkstra: Nodes Traversed: ${dijkstraResult.nodesTraversed}. Distance: ${dijkstraDistance.toFixed(2)}m\n\n`;
+        output += `Breadth-First Search: Nodes Traversed: ${bfsResult.nodesTraversed}. Distance: ${bfsDistance.toFixed(2)}m\n\n`;
+        console.log(output);
+
+        alert(output);
+        alert("Results can also be found in the developer console.");
+
     }
 
     async function AStar(startNode, endNode, debug=false) {
