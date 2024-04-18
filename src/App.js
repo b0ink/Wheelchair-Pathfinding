@@ -8,9 +8,11 @@ let gPaths = [];
 let node1Selection = null;
 let node2Selection = null;
 
-
-const {GetPlotlyLayout, CalculateDistance_Haversine, sleep} = require('./Utility');
-
+const {
+    GetPlotlyLayout,
+    CalculateDistance_Haversine,
+    sleep,
+} = require("./Utility");
 
 class Node {
     constructor(id, lon, lat) {
@@ -23,7 +25,6 @@ class Node {
     }
 }
 
-
 // Only used for easy management and rendering paths
 class Path {
     constructor(startNode, endNode, cost) {
@@ -34,12 +35,17 @@ class Path {
 }
 
 const CalculateDistance = (heuristicType, node1, node2) => {
-    if(heuristicType == "Haversine"){
+    if (heuristicType == "Haversine") {
         return CalculateDistance_Haversine(node1, node2);
+    }else if(heuristicType == "Euclidean"){
+        return CalculateDistance_Euclidean(node1, node2);
     }
 
     return CalculateDistance_Haversine(node1, node2);
-}
+};
+
+const heuristics = ["Haversine", "Euclidean", "Manhattan"];
+const algorithms = ["astar", "dijkstra"];
 
 function App() {
     const [traces, setTraces] = useState([]);
@@ -49,6 +55,29 @@ function App() {
     const [node2Name, setNode2Name] = useState("");
 
     const [pathDistance, setPathDistance] = useState(0);
+
+    const [heuristicType, setHeuristicType] = useState("Haversine");
+    
+    const onHeuristicChange = (e) => {
+        e.preventDefault();
+        let type = e.target.value;
+        if(!heuristics.includes(type)){
+            type = "Euclidean";
+        }
+        setHeuristicType(type)
+    }
+
+
+    const [algoType, setAlgoType] = useState("astar");
+    
+    const onAlgorithmChange = (e) => {
+        e.preventDefault();
+        let type = e.target.value;
+        if(!algorithms.includes(type)){
+            type = "astar";
+        }
+        setAlgoType(type)
+    }
 
     function HotFixMissingPaths(startNodeID) {
         console.log("starting index at", startNodeID);
@@ -119,7 +148,8 @@ function App() {
 
                 // f = g(node) + h(node)
                 let tentativeGScore =
-                    gScore[current] +  CalculateDistance("Haversine", current, neighbor);
+                    gScore[current] +
+                    CalculateDistance("Haversine", current, neighbor);
 
                 // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
                 // await sleep();
@@ -136,7 +166,8 @@ function App() {
 
                     gScore[neighbor] = tentativeGScore;
                     fScore[neighbor] =
-                        gScore[neighbor] +  CalculateDistance("Haversine", neighbor, endNode);
+                        gScore[neighbor] +
+                        CalculateDistance("Haversine", neighbor, endNode);
 
                     if (!openSet.includes(neighbor)) {
                         // AddNewPath(current, neighbor, "green", "s");
@@ -148,7 +179,7 @@ function App() {
                 }
             }
         }
-        GetPlotlyLayout
+        GetPlotlyLayout;
         return null; // No path found
     }
 
@@ -191,7 +222,7 @@ function App() {
                 lat: path[i + 1].coordinates.lat,
                 lon: path[i + 1].coordinates.lon,
             };
-            distance +=  CalculateDistance("Haversine", node1, node2);
+            distance += CalculateDistance("Haversine", node1, node2);
             setPathDistance(distance);
             await sleep(50);
 
@@ -199,7 +230,6 @@ function App() {
         }
         console.log("DISTANCE TO GET THERE:, ", distance);
     }
-
 
     function AddNewPath(node1, node2, color = "red", label = "") {
         console.log(node1);
@@ -415,7 +445,7 @@ function App() {
 
     return (
         <div className="App">
-            <div id="stats">
+            <div class="stats">
                 <div id="stats_nodes">
                     <div id="node1">
                         <span>Node 1: </span>
@@ -426,13 +456,34 @@ function App() {
                         {node2Name}
                     </div>
                 </div>
-                <div width="100px"></div>
-                <div>
+                {/* <div width="100px"></div> */}
+                <div id = "stats_distance">
                     <div>Distance: {pathDistance.toFixed(2)}m</div>
                     <div>
                         Est. Travel Time: {(pathDistance / 70).toFixed(0)}{" "}
                         Minutes
                     </div>
+                </div>
+            </div>
+            <div class="stats selectors">
+                <div>
+                    <label for="heuristic_selector">Heuristic type</label>
+                    <br></br>
+                    <select id="hueristic_selector"  onChange={onHeuristicChange}>
+                        <option value="Haversine" selected>Haversine</option>
+                        <option value="Euclidean">Euclidean</option>
+                        <option value="Manhattan">Manhattan</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="algorithm_type">Algorithm type</label>
+                    <br></br>
+                    <select id="algorithm_type" onChange={onAlgorithmChange}>
+                        <option value="astar" selected>A*</option>
+                        <option value="dijkstra">Dijkstra's</option>
+                        <option>Breadth First Search</option>
+                    </select>
                 </div>
             </div>
 

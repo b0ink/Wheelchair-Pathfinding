@@ -54,5 +54,15 @@ module.exports.CalculateDistance_Haversine = (node1, node2) => {
     return distance;
 };
 
+module.exports.CalculateDistance_Euclidean = (node1, node2) => {
+    const lat1 = node1.lat;
+    const lon1 = node1.lon;
+    const lat2 = node2.lat;
+    const lon2 = node2.lon;
+
+    const distance = Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lon2 - lon1, 2));
+    
+    return distance;
+}
 
 module.exports.sleep = (ms) => new Promise((r) => setTimeout(r, ms));
