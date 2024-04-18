@@ -49,12 +49,10 @@ function App() {
     const [traces, setTraces] = useState([]);
     const [token, setToken] = useState(null);
 
-
     const [node1Name, setNode1Name] = useState("");
     const [node2Name, setNode2Name] = useState("");
 
     const [pathDistance, setPathDistance] = useState(0);
-
 
     function HotFixMissingPaths(startNodeID) {
         console.log("starting index at", startNodeID);
@@ -123,6 +121,7 @@ function App() {
                     continue;
                 }
 
+                // f = g(node) + h(node)
                 let tentativeGScore =
                     gScore[current] + calculateDistance(current, neighbor);
 
@@ -216,6 +215,9 @@ function App() {
         }
     }
 
+    // n1
+    // n2,AddNeighbor(n1)
+
     class Path {
         constructor(startNode, endNode, cost) {
             this.startNode = startNode;
@@ -281,7 +283,6 @@ function App() {
             zoom: 16,
         },
     });
-
 
     function GetNodeById(id) {
         for (let node of gNodes) {
@@ -361,7 +362,6 @@ function App() {
         setTraces([...nodeTraces]);
 
         setToken(true);
-
     };
 
     useEffect(() => {
@@ -397,7 +397,10 @@ function App() {
                     clickmode: "event",
                     mapbox: {
                         style: "open-street-map",
-                        center: { lon: 145.11280923809354, lat: -37.847196668316924 },
+                        center: {
+                            lon: 145.11280923809354,
+                            lat: -37.847196668316924,
+                        },
                         zoom: 16,
                     },
                 });
@@ -499,14 +502,23 @@ function App() {
     return (
         <div className="App">
             <div id="stats">
-                <div id ="stats_nodes">
-                    <div id ="node1"><span>Node 1: </span>{node1Name ?? "N/A"}</div>
-                    <div id ="node2"><span>Node 2: </span>{node2Name}</div>
+                <div id="stats_nodes">
+                    <div id="node1">
+                        <span>Node 1: </span>
+                        {node1Name ?? "N/A"}
+                    </div>
+                    <div id="node2">
+                        <span>Node 2: </span>
+                        {node2Name}
+                    </div>
                 </div>
-                <div width = "100px"></div>
+                <div width="100px"></div>
                 <div>
                     <div>Distance: {pathDistance.toFixed(2)}m</div>
-                    <div>Est. Travel Time: {(pathDistance/70).toFixed(0)} Minutes</div>
+                    <div>
+                        Est. Travel Time: {(pathDistance / 70).toFixed(0)}{" "}
+                        Minutes
+                    </div>
                 </div>
             </div>
 
