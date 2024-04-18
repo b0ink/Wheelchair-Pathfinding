@@ -71,5 +71,13 @@ module.exports.CalculateDistance_Manhattan = (node1, node2) => {
     return parseFloat(distance);
 }
 
+module.exports.CalculateDistance_Diagonal = (node1, node2) => {
+    const dx = Math.abs(node1.lat - node2.lat);
+    const dy = Math.abs(node1.lon - node2.lon);
+    var min = Math.min(dx, dy);
+    var diag = Math.sqrt(2);
+    const distance = min * diag + Math.abs(dx - dy);
+    return distance;
+}
 
 module.exports.sleep = (ms) => new Promise((r) => setTimeout(r, ms));

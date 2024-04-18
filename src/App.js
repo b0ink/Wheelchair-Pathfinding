@@ -13,6 +13,7 @@ const {
     CalculateDistance_Haversine,
     CalculateDistance_Euclidean,
     CalculateDistance_Manhattan,
+    CalculateDistance_Diagonal,
     sleep,
 } = require("./Utility");
 
@@ -38,7 +39,7 @@ class Path {
     }
 }
 
-const heuristics = ["Haversine", "Euclidean", "Manhattan"];
+const heuristics = ["Haversine", "Euclidean", "Manhattan", "Diagonal"];
 const algorithms = ["astar", "dijkstra", "bfs"];
 
 function App() {
@@ -66,8 +67,10 @@ function App() {
             return CalculateDistance_Euclidean(node1, node2);
         } else if (heuristicType == "Manhattan") {
             return CalculateDistance_Manhattan(node1, node2);
+        }else if (heuristicType == "Diagonal") {
+            return CalculateDistance_Diagonal(node1, node2);
         }
-
+        
         return CalculateDistance_Haversine(node1, node2);
     };
 
@@ -695,6 +698,7 @@ function App() {
                         </option>
                         <option value="Euclidean">Euclidean</option>
                         <option value="Manhattan">Manhattan</option>
+                        <option value="Diagonal">Diagonal</option>
                     </select>
                 </div>
                 <button onClick={runTests}>Run Tests</button>
