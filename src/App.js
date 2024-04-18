@@ -199,7 +199,7 @@ function App() {
                 node.parent = null;
             }
         }
-        
+
         let openSet = [startNode];
         let closedSet = [];
         let gScore = {}; // Map to store the cost from start along best known path
@@ -548,7 +548,7 @@ function App() {
 
     const renderAllTraces = (e) => {
         e.preventDefault();
-        if(!confirm("Are you sure you want to render all 800+ traces?\n\nThis may take some time to load and is not recommended on slow devices")){
+        if(!confirm("Are you sure you want to render all 800+ traces?\n\nThis may 1-2 minutes to load and is not recommended on slow devices")){
             return;
         }
         window.location.href = window.origin + "/Wheelchair-Pathfinding?loadAllTraces="+Date.now()
