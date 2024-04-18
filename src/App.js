@@ -152,6 +152,11 @@ function App() {
 
     async function runTests(e) {
         e.preventDefault();
+
+        if(!confirm("This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks. Press ok to continue.")){
+            return;
+        }
+
         let node1 = GetNodeById(92); // Building G
         let node2 = GetNodeById(361); // Hungry jacks
 
