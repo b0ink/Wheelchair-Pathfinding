@@ -688,13 +688,13 @@ function App() {
             </div>
             <div className="stats selectors">
                 <div>
-                    <label for="heuristic_selector">Heuristic type</label>
+                    <label htmlFor="heuristic_selector">Heuristic type</label>
                     <br></br>
                     <select
                         id="hueristic_selector"
                         onChange={onHeuristicChange}
                     >
-                        <option value="Haversine" selected>
+                        <option value="Haversine">
                             Haversine
                         </option>
                         <option value="Euclidean">Euclidean</option>
@@ -704,10 +704,10 @@ function App() {
                 <button onClick={runTests}>Run Tests</button>
                 <button onClick={renderAllTraces}>Render all traces</button>
                 <div>
-                    <label for="algorithm_type">Algorithm type</label>
+                    <label htmlFor="algorithm_type">Algorithm type</label>
                     <br></br>
                     <select id="algorithm_type" onChange={onAlgorithmChange}>
-                        <option value="astar" selected>
+                        <option value="astar">
                             A*
                         </option>
                         <option value="dijkstra">Dijkstra's</option>
