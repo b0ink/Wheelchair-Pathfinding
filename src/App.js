@@ -24,13 +24,13 @@ class Node {
         this.neighbors = [];
     }
     addNeighbor(neighborNode) {
-        if(!this.neighbors.includes(neighborNode)){
+        if (!this.neighbors.includes(neighborNode)) {
             this.neighbors.push(neighborNode);
         }
     }
 }
 
-// Only used for easy management and rendering paths
+// Only used for rendering paths
 class Path {
     constructor(startNode, endNode, cost) {
         this.startNode = startNode;
@@ -43,9 +43,8 @@ const heuristics = ["Haversine", "Euclidean", "Manhattan", "Diagonal"];
 const algorithms = ["astar", "dijkstra", "bfs"];
 
 function App() {
-
     const queryParams = new URLSearchParams(window.location.search);
-    const loadAllTraces = queryParams.get('loadAllTraces');
+    const loadAllTraces = queryParams.get("loadAllTraces");
 
     const [traces, setTraces] = useState([]);
     const [token, setToken] = useState(null);
@@ -67,12 +66,238 @@ function App() {
             return CalculateDistance_Euclidean(node1, node2);
         } else if (heuristicType == "Manhattan") {
             return CalculateDistance_Manhattan(node1, node2);
-        }else if (heuristicType == "Diagonal") {
+        } else if (heuristicType == "Diagonal") {
             return CalculateDistance_Diagonal(node1, node2);
         }
-        
+
         return CalculateDistance_Haversine(node1, node2);
     };
+
+    /*
+        --------------------------------------------------------
+        -- A STAR
+        --------------------------------------------------------
+    */
+
+    async function AStar(startNode, endNode, debug = false) {
+        for (let node of gNodes) {
+            if (node.parent) {
+                node.parent = null;
+            }
+        }
+
+        let openSet = [startNode];
+        let closedSet = [];
+        let gScore = {}; // Map to store the cost from start along best known path
+        let fScore = {}; // Map to store the estimated total cost from start to goal through a node
+
+        gScore[startNode] = 0;
+        fScore[startNode] = CalculateDistance(
+            startNode.coordinates,
+            endNode.coordinates
+        );
+
+        let aStarNodesTraversed = 0;
+
+        while (openSet.length > 0) {
+            aStarNodesTraversed++;
+
+            if (!debug) await sleep(1);
+            setTotalNodesTraversed(aStarNodesTraversed);
+
+            let current = openSet.reduce((minNode, node) =>
+                fScore[node] < fScore[minNode] ? node : minNode
+            );
+
+            if (current === endNode) {
+                return {
+                    path: reconstructPathAStar(endNode),
+                    nodesTraversed: aStarNodesTraversed,
+                };
+            }
+
+            openSet = openSet.filter((node) => node !== current);
+            closedSet.push(current);
+
+            for (let neighbor of current.neighbors) {
+                if (closedSet.includes(neighbor)) {
+                    continue;
+                }
+
+                aStarNodesTraversed++;
+
+                let dist = CalculateDistance(
+                    current.coordinates,
+                    neighbor.coordinates
+                );
+                let tentativeGScore = gScore[current] + dist;
+
+                if (
+                    !openSet.includes(neighbor) ||
+                    tentativeGScore < gScore[neighbor]
+                ) {
+                    neighbor.parent = current;
+
+                    gScore[neighbor] = tentativeGScore;
+                    fScore[neighbor] =
+                        gScore[neighbor] +
+                        CalculateDistance(
+                            neighbor.coordinates,
+                            endNode.coordinates
+                        );
+
+                    if (!openSet.includes(neighbor)) {
+                        openSet.push(neighbor);
+                    }
+                }
+            }
+        }
+        return null; // No path found
+    }
+
+    // Function to reconstruct the path from start to end
+    function reconstructPathAStar(currentNode) {
+        let count = 0;
+        const path = [currentNode];
+        while (currentNode.parent) {
+            path.unshift(currentNode.parent);
+            currentNode = currentNode.parent;
+            count++;
+        }
+        console.log(path);
+        RenderFinalPath(path);
+        return path;
+    }
+
+
+    /*
+        --------------------------------------------------------
+        -- Dijkstra
+        --------------------------------------------------------
+    */
+
+    async function dijkstra(startNode, endNode, debug = false) {
+        // Initialize distances to all nodes as infinity except for the start node
+        let distances = {};
+        let previousNodes = {};
+        gNodes.forEach((node) => {
+            distances[node.id] = node === startNode ? 0 : Infinity;
+            previousNodes[node.id] = null;
+        });
+
+        let dijkstraNodesTraversed = 0;
+
+        const unvisitedNodes = [...gNodes];
+        while (unvisitedNodes.length > 0) {
+            // Find the node with the smallest distance from start among unvisited nodes
+            const currentNode = unvisitedNodes.reduce((minNode, node) =>
+                distances[node.id] < distances[minNode.id] ? node : minNode
+            );
+
+            dijkstraNodesTraversed++;
+
+            setTotalNodesTraversed(dijkstraNodesTraversed);
+            if (!debug) await sleep(1);
+
+            if (currentNode === endNode) {
+                return {
+                    path: reconstructPathDijkstra(endNode, previousNodes),
+                    nodesTraversed: dijkstraNodesTraversed,
+                };
+            }
+
+            // Remove the current node from unvisited nodes
+            unvisitedNodes.splice(unvisitedNodes.indexOf(currentNode), 1);
+
+            // Update distances to neighbors
+            currentNode.neighbors.forEach((neighbor) => {
+                dijkstraNodesTraversed++;
+
+                const dist = CalculateDistance(
+                    currentNode.coordinates,
+                    neighbor.coordinates
+                );
+
+                const distanceToNeighbor = distances[currentNode.id] + dist;
+                if (distanceToNeighbor < distances[neighbor.id]) {
+                    distances[neighbor.id] = distanceToNeighbor;
+                    previousNodes[neighbor.id] = currentNode; // Update previous node for neighbor
+                }
+            });
+        }
+
+        return null; // No path found
+    }
+
+    function reconstructPathDijkstra(endNode, previousNodes) {
+        const path = [];
+        let currentNode = endNode;
+        while (currentNode) {
+            path.unshift(currentNode);
+            currentNode = previousNodes[currentNode.id];
+        }
+        RenderFinalPath(path);
+        return path;
+    }
+
+
+
+    /*
+        --------------------------------------------------------
+        -- Breadth-First Search
+        --------------------------------------------------------
+    */
+
+    async function breadthFirstSearch(startNode, endNode, debug = false) {
+        const queue = [startNode];
+        const visited = new Set();
+        const previousNodes = {};
+
+        let bfsNodesTraversed = 0;
+
+        while (queue.length > 0) {
+            bfsNodesTraversed++;
+            if (!debug) await sleep(1);
+            setTotalNodesTraversed(bfsNodesTraversed);
+
+            const currentNode = queue.shift();
+
+            if (currentNode === endNode) {
+                return {
+                    path: reconstructPathBFS(startNode, endNode, previousNodes),
+                    nodesTraversed: bfsNodesTraversed,
+                };
+            }
+
+            visited.add(currentNode);
+
+            for (const neighbor of currentNode.neighbors) {
+                bfsNodesTraversed++;
+                if (!visited.has(neighbor)) {
+                    queue.push(neighbor);
+                    previousNodes[neighbor.id] = currentNode;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // Reconstruct the shortest path from start node to end node
+    function reconstructPathBFS(startNode, endNode, previousNodes) {
+        const path = [];
+        let currentNode = endNode;
+        while (currentNode !== startNode) {
+            path.unshift(currentNode);
+            currentNode = previousNodes[currentNode.id];
+        }
+        path.unshift(startNode);
+        RenderFinalPath(path);
+        return path;
+    }
+
+
+    // UTIL
 
     const ResetNav = () => {
         setPathDistance(0);
@@ -114,8 +339,8 @@ function App() {
         GetNodeById(354).addNeighbor(GetNodeById(798));
         // newNode1 += -37.8460620, 145.1136229
 
-        let newNode1 = GetNodeByCoord(-37.846062, 145.1136229)
-        if(newNode1 == null){
+        let newNode1 = GetNodeByCoord(-37.846062, 145.1136229);
+        if (newNode1 == null) {
             newNode1 = new Node(802, 145.1136229, -37.846062);
         }
 
@@ -125,8 +350,8 @@ function App() {
 
         // newNode2 += -37.8461351, 145.1137048
         startNodeID++;
-        let newNode2 = GetNodeByCoord(-37.8461351, 145.1137048)
-        if(newNode2 == null){
+        let newNode2 = GetNodeByCoord(-37.8461351, 145.1137048);
+        if (newNode2 == null) {
             newNode2 = new Node(805, 145.1137048, -37.8461351);
         }
         // connect node HF/762 to newNode2
@@ -163,7 +388,11 @@ function App() {
     async function runTests(e) {
         e.preventDefault();
 
-        if(!confirm("This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks.\n\nPress ok to continue.")){
+        if (
+            !confirm(
+                "This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks.\n\nPress ok to continue."
+            )
+        ) {
             return;
         }
 
@@ -183,225 +412,20 @@ function App() {
         const dijkstraDistance = calculatePathCost(dijkstraResult.path);
         const bfsDistance = calculatePathCost(bfsResult.path);
 
-
         let output = "";
-        output += `A-Star: Nodes Traversed: ${astarResult.nodesTraversed}. Distance: ${aStarDistance.toFixed(2)}m\n\n`;
-        output += `Dijkstra: Nodes Traversed: ${dijkstraResult.nodesTraversed}. Distance: ${dijkstraDistance.toFixed(2)}m\n\n`;
-        output += `Breadth-First Search: Nodes Traversed: ${bfsResult.nodesTraversed}. Distance: ${bfsDistance.toFixed(2)}m\n\n`;
+        output += `A-Star: Nodes Traversed: ${
+            astarResult.nodesTraversed
+        }. Distance: ${aStarDistance.toFixed(2)}m\n\n`;
+        output += `Dijkstra: Nodes Traversed: ${
+            dijkstraResult.nodesTraversed
+        }. Distance: ${dijkstraDistance.toFixed(2)}m\n\n`;
+        output += `Breadth-First Search: Nodes Traversed: ${
+            bfsResult.nodesTraversed
+        }. Distance: ${bfsDistance.toFixed(2)}m\n\n`;
         console.log(output);
 
         alert(output);
         alert("Results can also be found in the developer console.");
-
-    }
-
-    async function AStar(startNode, endNode, debug=false) {
-        //TODO: track memory usage (array sizes)
-        for (let node of gNodes) {
-            if (node.parent) {
-                node.parent = null;
-            }
-        }
-
-        let openSet = [startNode];
-        let closedSet = [];
-        let gScore = {}; // Map to store the cost from start along best known path
-        let fScore = {}; // Map to store the estimated total cost from start to goal through a node
-
-        gScore[startNode] = 0;
-        fScore[startNode] = CalculateDistance(startNode.coordinates, endNode.coordinates);
-
-        let count1 = 0;
-        let count2 = 0;
-
-        while (openSet.length > 0) {
-            count1++;
-            if(!debug) await sleep(1);
-            setTotalNodesTraversed(count1);
-
-            let current = openSet.reduce((minNode, node) =>
-                fScore[node] < fScore[minNode] ? node : minNode
-            );
-
-            if (current === endNode) {
-                return {
-                    path: reconstructPath(endNode),
-                    nodesTraversed: count1,
-                };
-            }
-
-            openSet = openSet.filter((node) => node !== current);
-            closedSet.push(current);
-
-            // AddNewPath(current, node, "orange", "test");
-
-            for (let neighbor of current.neighbors) {
-                count2++;
-                if (closedSet.includes(neighbor)) {
-                    continue;
-                }
-
-                count1++;
-
-                // f = g(node) + h(node)
-                let dist = CalculateDistance(current.coordinates, neighbor.coordinates);
-                let tentativeGScore =
-                    gScore[current] + dist;
-
-                // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
-                // await sleep();
-
-                if (
-                    !openSet.includes(neighbor) ||
-                    tentativeGScore < gScore[neighbor]
-                ) {
-                    // if(neighbor.parent ){
-                    // }else{
-                    // }
-
-                    neighbor.parent = current;
-
-                    gScore[neighbor] = tentativeGScore;
-                    fScore[neighbor] =
-                        gScore[neighbor] + CalculateDistance(neighbor.coordinates, endNode.coordinates);
-
-                    if (!openSet.includes(neighbor)) {
-                        // AddNewPath(current, neighbor, "green", "s");
-                        openSet.push(neighbor);
-                    } else {
-                        // AddNewPath(current, neighbor, "orange", tentativeGScore.toString());
-                    }
-                } else {
-                }
-            }
-        }
-        return null; // No path found
-    }
-
-    async function dijkstra(startNode, endNode, debug=false) {
-        // Initialize distances to all nodes as infinity except for the start node
-        let distances = {};
-        let previousNodes = {};
-        gNodes.forEach((node) => {
-            distances[node.id] = node === startNode ? 0 : Infinity;
-            previousNodes[node.id] = null;
-        });
-
-
-        let count1NodesTrav = 0;
-        let count2 = 0;
-        // Main loop
-        const unvisitedNodes = [...gNodes];
-        while (unvisitedNodes.length > 0) {
-            // Find the node with the smallest distance from start among unvisited nodes
-            const currentNode = unvisitedNodes.reduce((minNode, node) =>
-                distances[node.id] < distances[minNode.id] ? node : minNode
-            );
-
-            count1NodesTrav++;
-
-            setTotalNodesTraversed(count1NodesTrav);
-            if(!debug) await sleep(1);
-
-            if (currentNode === endNode) {
-                return {
-                    path: reconstructPathDijkstra(endNode, previousNodes),
-                    nodesTraversed: count1NodesTrav,
-                };
-            }
-
-            // Remove the current node from unvisited nodes
-            unvisitedNodes.splice(unvisitedNodes.indexOf(currentNode), 1);
-
-            // Update distances to neighbors
-            currentNode.neighbors.forEach((neighbor) => {
-                count1NodesTrav++;
-
-                const dist = CalculateDistance(
-                    currentNode.coordinates,
-                    neighbor.coordinates
-                );
-
-                const distanceToNeighbor = distances[currentNode.id] + dist;
-                if (distanceToNeighbor < distances[neighbor.id]) {
-                    distances[neighbor.id] = distanceToNeighbor;
-                    previousNodes[neighbor.id] = currentNode; // Update previous node for neighbor
-                }
-            });
-        }
-
-        return null; // No path found
-    }
-
-    function reconstructPathDijkstra(endNode, previousNodes) {
-        const path = [];
-        let currentNode = endNode;
-        while (currentNode) {
-            path.unshift(currentNode);
-            currentNode = previousNodes[currentNode.id];
-        }
-        RenderFinalPath(path);
-        return path;
-    }
-
-    async function breadthFirstSearch(startNode, endNode, debug=false) {
-        const queue = [startNode];
-        const visited = new Set();
-        const previousNodes = {};
-
-        let countNodesTraversed = 0;
-        while (queue.length > 0) {
-            const currentNode = queue.shift();
-            countNodesTraversed++;
-            if(!debug) await sleep(1);
-            setTotalNodesTraversed(countNodesTraversed);
-
-            if (currentNode === endNode) {
-                return {
-                    path: reconstructPathBFS(startNode, endNode, previousNodes),
-                    nodesTraversed: countNodesTraversed,
-                };
-            }
-
-            visited.add(currentNode);
-
-            for (const neighbor of currentNode.neighbors) {
-                countNodesTraversed++;
-                if (!visited.has(neighbor)) {
-                    queue.push(neighbor);
-                    previousNodes[neighbor.id] = currentNode;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    // Reconstruct the shortest path from start node to end node
-    function reconstructPathBFS(startNode, endNode, previousNodes) {
-        const path = [];
-        let currentNode = endNode;
-        while (currentNode !== startNode) {
-            path.unshift(currentNode);
-            currentNode = previousNodes[currentNode.id];
-        }
-        path.unshift(startNode);
-        RenderFinalPath(path);
-        return path;
-    }
-
-    // Function to reconstruct the path from start to end
-    function reconstructPath(currentNode) {
-        let count = 0;
-        const path = [currentNode];
-        while (currentNode.parent) {
-            path.unshift(currentNode.parent);
-            currentNode = currentNode.parent;
-            count++;
-        }
-        console.log(path);
-        RenderFinalPath(path);
-        return path;
     }
 
     async function RenderFinalPath(path) {
@@ -452,7 +476,6 @@ function App() {
             showLegend: false,
         };
 
-
         traces.push(newTrace);
         setTraces([...traces]);
         return newTrace;
@@ -476,7 +499,7 @@ function App() {
     const getData = async () => {
         // const response = await fetch("/data.json");
         // const data = await response.json();
-        const data = require('./data.json')
+        const data = require("./data.json");
         const nodes = data.nodes;
         const paths = data.paths;
 
@@ -535,13 +558,11 @@ function App() {
             },
         }));
 
-        // Prevent traces being rendered on every page reload if param is still there
-        const timeDiff = (Date.now() - loadAllTraces)/1000;
-        // only if called within 3 seconds
-        if(loadAllTraces && timeDiff < 3 && timeDiff > 0){ 
-                console.log("Loading all traces");
-                setTraces([...nodeTraces, ...edgeTraces]);
-        }else{
+        const timeDiff = (Date.now() - loadAllTraces) / 1000;
+        if (loadAllTraces && timeDiff < 3 && timeDiff > 0) {
+            // Prevent all traces being rendered on every reload if ?loadAllTraces is still present
+            setTraces([...nodeTraces, ...edgeTraces]);
+        } else {
             // only render labelled nodes
             setTraces([...nodeTraces]);
         }
@@ -551,11 +572,18 @@ function App() {
 
     const renderAllTraces = (e) => {
         e.preventDefault();
-        if(!confirm("Are you sure you want to render all 800+ traces?\n\nThis may 1-2 minutes to load and is not recommended on slow devices")){
+        if (
+            !confirm(
+                "Are you sure you want to render all 800+ traces?\n\nThis may 1-2 minutes to load and is not recommended on slow devices"
+            )
+        ) {
             return;
         }
-        window.location.href = window.origin + "/Wheelchair-Pathfinding?loadAllTraces="+Date.now()
-    }
+        window.location.href =
+            window.origin +
+            "/Wheelchair-Pathfinding?loadAllTraces=" +
+            Date.now();
+    };
 
     useEffect(() => {
         if (token == null) {
@@ -593,7 +621,6 @@ function App() {
     };
 
     const onClick = (e) => {
-
         let index = e.points[0].fullData.index;
         if (e.points[0].data.mode !== "markers") {
             console.log("not a marker");
@@ -644,12 +671,8 @@ function App() {
         } else if (algoType == "bfs") {
             const path = breadthFirstSearch(startNode, endNode);
         }
-        return; // todo
-
-        console.log(path);
-        if (!path) return;
-        console.log("updating route colros?");
     }
+
     function GetNodeByCoord(lat, lon) {
         for (let node of gNodes) {
             if (node.coordinates.lat == lat && node.coordinates.lon == lon) {
@@ -659,7 +682,6 @@ function App() {
         return null;
     }
 
-
     return (
         <div className="App">
             <div className="stats">
@@ -667,17 +689,17 @@ function App() {
                     <div id="node1">
                         <span>Node 1: </span>
                         {node1Name ? node1Name : "(none selected)"}
-             
                     </div>
                     <div id="node2">
                         <span>Node 2: </span>
                         {node2Name ? node2Name : "(none selected)"}
-
                     </div>
                 </div>
-                {/* <div width="100px"></div> */}
                 <div id="stats_distance">
-                    <div>Distance: {pathDistance.toFixed(2)}m <span id="totalnodes">({pathNodeCount} nodes)</span></div>
+                    <div>
+                        Distance: {pathDistance.toFixed(2)}m{" "}
+                        <span id="totalnodes">({pathNodeCount} nodes)</span>
+                    </div>
                     <div title="Based on wheelchair speeds at 4.5km/h">
                         Est. Travel Time: {(pathDistance / 75).toFixed(0)}{" "}
                         Minutes
@@ -693,9 +715,7 @@ function App() {
                         id="hueristic_selector"
                         onChange={onHeuristicChange}
                     >
-                        <option value="Haversine">
-                            Haversine
-                        </option>
+                        <option value="Haversine">Haversine</option>
                         <option value="Euclidean">Euclidean</option>
                         <option value="Manhattan">Manhattan</option>
                         <option value="Diagonal">Diagonal</option>
@@ -707,16 +727,17 @@ function App() {
                     <label htmlFor="algorithm_type">Algorithm type</label>
                     <br></br>
                     <select id="algorithm_type" onChange={onAlgorithmChange}>
-                        <option value="astar">
-                            A*
-                        </option>
+                        <option value="astar">A*</option>
                         <option value="dijkstra">Dijkstra's</option>
                         <option value="bfs">Breadth First Search</option>
                     </select>
                 </div>
             </div>
             <div className="stats tooltip">
-                <span>Click on two individual nodes to determine the best route based on the selected algorithm</span>
+                <span>
+                    Click on two individual nodes to determine the best route
+                    based on the selected algorithm
+                </span>
             </div>
 
             <Plot
@@ -724,7 +745,6 @@ function App() {
                 data={traces}
                 layout={layout}
                 onUpdate={(figure) => setLayout(figure.layout)}
-                // onInitialized={(figure) => setFigure(figure)}
                 revision={revision}
                 onClick={onClick}
             />
