@@ -675,8 +675,8 @@ function App() {
                 {/* <div width="100px"></div> */}
                 <div id="stats_distance">
                     <div>Distance: {pathDistance.toFixed(2)}m <span id="totalnodes">({pathNodeCount} nodes)</span></div>
-                    <div>
-                        Est. Travel Time: {(pathDistance / 70).toFixed(0)}{" "}
+                    <div title="Based on wheelchair speeds at 4.5km/h">
+                        Est. Travel Time: {(pathDistance / 75).toFixed(0)}{" "}
                         Minutes
                     </div>
                     <div>Nodes Traversed: {totalNodesTraversed}</div>
