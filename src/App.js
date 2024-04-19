@@ -429,15 +429,15 @@ function App() {
         const bfsDistance = calculatePathCost(bfsResult.path);
 
         let output = "";
-        output += `A-Star: Nodes Traversed: ${
+        output += `A-Star:\nNodes Traversed: ${
             astarResult.nodesTraversed
-        }. Distance: ${aStarDistance.toFixed(2)}m\n\n`;
-        output += `Dijkstra: Nodes Traversed: ${
+        }. Total Route Distance: ${aStarDistance.toFixed(2)}m\n\n`;
+        output += `Dijkstra:\nNodes Traversed: ${
             dijkstraResult.nodesTraversed
-        }. Distance: ${dijkstraDistance.toFixed(2)}m\n\n`;
-        output += `Breadth-First Search: Nodes Traversed: ${
+        }. Total Route Distance: ${dijkstraDistance.toFixed(2)}m\n\n`;
+        output += `Breadth-First Search:\nNodes Traversed: ${
             bfsResult.nodesTraversed
-        }. Distance: ${bfsDistance.toFixed(2)}m\n\n`;
+        }. Total Route Distance: ${bfsDistance.toFixed(2)}m\n\n`;
         console.log(output);
 
         alert(output);
@@ -561,14 +561,14 @@ function App() {
         }));
 
         // Create traces for paths
-        const edgeTraces = paths.map((path) => ({
+        const edgeTraces = gPaths.map((path) => ({
             type: "scattermapbox",
             mode: "lines",
             lon: [
-                path.node1Data.coordinate.long,
-                path.node2Data.coordinate.long,
+                path.startNode.coordinates.lon,
+                path.endNode.coordinates.lon,
             ],
-            lat: [path.node1Data.coordinate.lat, path.node2Data.coordinate.lat],
+            lat: [path.startNode.coordinates.lat, path.endNode.coordinates.lat],
             line: {
                 width: 2,
                 color: "black",
@@ -739,7 +739,7 @@ function App() {
                     </select>
                 </div>
                 <button onClick={runTests}>Run Tests</button>
-                <button onClick={renderAllTraces}>Render all traces</button>
+                <button onClick={renderAllTraces}>Render all paths</button>
                 <div>
                     <label htmlFor="algorithm_type">Algorithm type</label>
                     <br></br>
