@@ -728,6 +728,8 @@ function App() {
                     <select
                         id="hueristic_selector"
                         onChange={onHeuristicChange}
+                        defaultValue="Haversine"
+                        disabled={algoType==="bfs"?true:false}
                     >
                         <option value="Haversine">Haversine</option>
                         <option value="Euclidean">Euclidean</option>
@@ -740,7 +742,9 @@ function App() {
                 <div>
                     <label htmlFor="algorithm_type">Algorithm type</label>
                     <br></br>
-                    <select id="algorithm_type" onChange={onAlgorithmChange}>
+                    <select id="algorithm_type" onChange={onAlgorithmChange}
+                    defaultValue="astar"
+                    >
                         <option value="astar">A*</option>
                         <option value="dijkstra">Dijkstra's</option>
                         <option value="bfs">Breadth First Search</option>
