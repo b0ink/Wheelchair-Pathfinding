@@ -169,7 +169,6 @@ function App() {
         return path;
     }
 
-
     /*
         --------------------------------------------------------
         -- Dijkstra
@@ -240,8 +239,6 @@ function App() {
         return path;
     }
 
-
-
     /*
         --------------------------------------------------------
         -- Breadth-First Search
@@ -295,7 +292,6 @@ function App() {
         RenderFinalPath(path, "red");
         return path;
     }
-
 
     // UTIL
 
@@ -368,18 +364,15 @@ function App() {
         newNode2.addNeighbor(newNode1);
         gPaths.push(new Path(newNode2, newNode1, -1));
 
-
         // connect HE/123 to newNode2
         GetNodeById(123).addNeighbor(newNode2);
         newNode2.addNeighbor(GetNodeById(123));
         gPaths.push(new Path(newNode2, GetNodeById(123), -1));
 
-
         // connect path near ground floor bus stop area
         GetNodeById(406).addNeighbor(GetNodeById(401));
         GetNodeById(401).addNeighbor(GetNodeById(406));
-        gPaths.push(new Path( GetNodeById(401), GetNodeById(406), -1));
-
+        gPaths.push(new Path(GetNodeById(401), GetNodeById(406), -1));
 
         return [newNode1, newNode2];
     }
@@ -439,7 +432,7 @@ function App() {
         alert("Results can also be found in the developer console.");
     }
 
-    async function RenderFinalPath(path, color="fuchsia") {
+    async function RenderFinalPath(path, color = "fuchsia") {
         let distance = 0;
         let routes = [];
         for (let i = 0; i < path.length - 1; i++) {
@@ -539,7 +532,6 @@ function App() {
         let hotfix = HotFixMissingPaths();
         gNodes.push(...hotfix);
 
-
         // Only render nodes that contain a name/label, such as buildings
         const labeledNodes = nodes.filter((node) => node.label.trim() !== "");
         // const labeledNodes = nodes;
@@ -561,10 +553,7 @@ function App() {
         const edgeTraces = gPaths.map((path) => ({
             type: "scattermapbox",
             mode: "lines",
-            lon: [
-                path.startNode.coordinates.lon,
-                path.endNode.coordinates.lon,
-            ],
+            lon: [path.startNode.coordinates.lon, path.endNode.coordinates.lon],
             lat: [path.startNode.coordinates.lat, path.endNode.coordinates.lat],
             line: {
                 width: 2,
@@ -729,7 +718,7 @@ function App() {
                         id="hueristic_selector"
                         onChange={onHeuristicChange}
                         defaultValue="Haversine"
-                        disabled={algoType==="bfs"?true:false}
+                        disabled={algoType === "bfs" ? true : false}
                     >
                         <option value="Haversine">Haversine</option>
                         <option value="Euclidean">Euclidean</option>
@@ -742,8 +731,10 @@ function App() {
                 <div>
                     <label htmlFor="algorithm_type">Algorithm type</label>
                     <br></br>
-                    <select id="algorithm_type" onChange={onAlgorithmChange}
-                    defaultValue="astar"
+                    <select
+                        id="algorithm_type"
+                        onChange={onAlgorithmChange}
+                        defaultValue="astar"
                     >
                         <option value="astar">A*</option>
                         <option value="dijkstra">Dijkstra's</option>
