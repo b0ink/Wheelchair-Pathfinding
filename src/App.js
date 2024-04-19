@@ -398,7 +398,7 @@ function App() {
         e.preventDefault();
 
         if (
-            !confirm(
+            !window.confirm(
                 "This runs A-Star, Dijkstra's, and Breadth First Search algorithms from Building G -> Hungry Jacks.\n\nPress ok to continue."
             )
         ) {
@@ -576,7 +576,7 @@ function App() {
     const renderAllTraces = (e) => {
         e.preventDefault();
         if (
-            !confirm(
+            !window.confirm(
                 "Are you sure you want to render all 800+ traces?\n\nThis may 1-2 minutes to load and is not recommended on slow devices"
             )
         ) {
