@@ -337,6 +337,8 @@ function App() {
         // connect node 798 to 354
         GetNodeById(798).addNeighbor(GetNodeById(354));
         GetNodeById(354).addNeighbor(GetNodeById(798));
+        gPaths.push(new Path(GetNodeById(354), GetNodeById(798), -1));
+
         // newNode1 += -37.8460620, 145.1136229
 
         let newNode1 = GetNodeByCoord(-37.846062, 145.1136229);
@@ -347,6 +349,7 @@ function App() {
         // connect 601 to newNode1
         GetNodeById(601).addNeighbor(newNode1);
         newNode1.addNeighbor(GetNodeById(601));
+        gPaths.push(new Path(newNode1, GetNodeById(601), -1));
 
         // newNode2 += -37.8461351, 145.1137048
         startNodeID++;
@@ -354,17 +357,30 @@ function App() {
         if (newNode2 == null) {
             newNode2 = new Node(805, 145.1137048, -37.8461351);
         }
+
         // connect node HF/762 to newNode2
         newNode2.addNeighbor(GetNodeById(762));
         GetNodeById(762).addNeighbor(newNode2);
+        gPaths.push(new Path(newNode2, GetNodeById(762), -1));
 
         // connect newNode1 to newNode2
         newNode1.addNeighbor(newNode2);
         newNode2.addNeighbor(newNode1);
+        gPaths.push(new Path(newNode2, newNode1, -1));
+
 
         // connect HE/123 to newNode2
         GetNodeById(123).addNeighbor(newNode2);
         newNode2.addNeighbor(GetNodeById(123));
+        gPaths.push(new Path(newNode2, GetNodeById(123), -1));
+
+
+        // connect path near ground floor bus stop area
+        GetNodeById(406).addNeighbor(GetNodeById(401));
+        GetNodeById(401).addNeighbor(GetNodeById(406));
+        gPaths.push(new Path( GetNodeById(401), GetNodeById(406), -1));
+
+
         return [newNode1, newNode2];
     }
 
@@ -504,6 +520,7 @@ function App() {
         const paths = data.paths;
 
         gNodes = [];
+        gPaths = [];
         for (let node of nodes) {
             gNodes.push(
                 new Node(node.id, node.coordinate.long, node.coordinate.lat)
