@@ -415,14 +415,9 @@ function App() {
         let node1 = GetNodeById(92); // Building G
         let node2 = GetNodeById(361); // Hungry jacks
 
-        ResetNav();
-        // TODO: render final path in different colors
         const astarResult = await AStar(node1, node2, true);
-        ResetNav();
         const dijkstraResult = await dijkstra(node1, node2, true);
-        ResetNav();
         const bfsResult = await breadthFirstSearch(node1, node2, true);
-        ResetNav();
 
         const aStarDistance = calculatePathCost(astarResult.path);
         const dijkstraDistance = calculatePathCost(dijkstraResult.path);
@@ -544,6 +539,8 @@ function App() {
         let hotfix = HotFixMissingPaths();
         gNodes.push(...hotfix);
 
+
+        // Only render nodes that contain a name/label, such as buildings
         const labeledNodes = nodes.filter((node) => node.label.trim() !== "");
         // const labeledNodes = nodes;
 
