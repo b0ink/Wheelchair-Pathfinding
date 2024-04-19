@@ -236,7 +236,7 @@ function App() {
             path.unshift(currentNode);
             currentNode = previousNodes[currentNode.id];
         }
-        RenderFinalPath(path);
+        RenderFinalPath(path, "#2de000");
         return path;
     }
 
@@ -292,7 +292,7 @@ function App() {
             currentNode = previousNodes[currentNode.id];
         }
         path.unshift(startNode);
-        RenderFinalPath(path);
+        RenderFinalPath(path, "red");
         return path;
     }
 
@@ -444,7 +444,7 @@ function App() {
         alert("Results can also be found in the developer console.");
     }
 
-    async function RenderFinalPath(path) {
+    async function RenderFinalPath(path, color="fuchsia") {
         let distance = 0;
         let routes = [];
         for (let i = 0; i < path.length - 1; i++) {
@@ -455,7 +455,7 @@ function App() {
                 lat: [path[i].coordinates.lat, path[i + 1].coordinates.lat],
                 line: {
                     width: 4,
-                    color: "fuchsia",
+                    color,
                 },
             };
 
