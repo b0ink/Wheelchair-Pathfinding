@@ -256,4 +256,6 @@ select {
         color: inherit;
         background-color: var(--option-bg);
     }
+
+    font-size: 16px;
 }
