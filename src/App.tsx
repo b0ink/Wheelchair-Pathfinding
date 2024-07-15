@@ -202,7 +202,7 @@ function App() {
             path.unshift(currentNode);
             currentNode = previousNodes[currentNode.id];
         }
-        RenderFinalPath(path, "#2de000");
+        RenderFinalPath(path, "#00a31b");
         return path;
     }
 
