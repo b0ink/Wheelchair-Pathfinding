@@ -253,7 +253,7 @@ select {
     }
     /* <option> colors */
     option {
-        color: inherit;
+        color: black;
         background-color: var(--option-bg);
     }
 
