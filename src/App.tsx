@@ -709,6 +709,10 @@ function App() {
                     <div>Nodes Traversed: {totalNodesTraversed}</div>
                 </div>
             </div>
+            <div className="stats button-stats">
+                <button className ="button-85" onClick={runTests}>Run Tests</button>
+                <button className="button-85" onClick={renderAllTraces}>Render all paths</button>
+            </div>
             <div className="stats selectors">
                 <div>
                     <label htmlFor="heuristic_selector">Heuristic type</label>
@@ -725,8 +729,7 @@ function App() {
                         <option value="Diagonal">Diagonal</option>
                     </select>
                 </div>
-                <button onClick={runTests}>Run Tests</button>
-                <button onClick={renderAllTraces}>Render all paths</button>
+          
                 <div>
                     <label htmlFor="algorithm_type">Algorithm type</label>
                     <br></br>
@@ -741,6 +744,7 @@ function App() {
                     </select>
                 </div>
             </div>
+
             <div className="stats tooltip">
                 <span>
                     Click on two individual nodes to determine the best route

@@ -15,12 +15,12 @@ export function GetPlotlyLayout(window: Window): any {
             pad: 0,
         },
         legend: {
-            bgcolor: "#313b3c",
+            bgcolor: "rgba(0,0,0,0%)",
             font: {
                 color: "#FFF",
             },
         },
-        paper_bgcolor: "#313b3c",
+        paper_bgcolor: "#rgba(0,0,0,0%)",
         hovermode: "closest",
         clickmode: "event",
         mapbox: {
