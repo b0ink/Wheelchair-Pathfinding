@@ -1,12 +1,18 @@
-import logo from "./logo.svg";
+// import logo from "./logo.svg";
+import React from "react";
+
 import "./App.css";
 import Plot from "react-plotly.js";
+import Plotly from "plotly.js"
 import { useEffect, useState, useMemo } from "react";
 
-let gNodes = [];
+
+import {Coordinate, Node, NodeData, Path, PathfindResult} from './types';
+
+let gNodes:Node[] = [];
 let gPaths = [];
-let node1Selection = null;
-let node2Selection = null;
+let node1Selection:Node | null = null;
+let node2Selection:Node | null = null;
 
 const {
     GetPlotlyLayout,
@@ -17,37 +23,19 @@ const {
     sleep,
 } = require("./Utility");
 
-class Node {
-    constructor(id, lon, lat) {
-        this.id = id;
-        this.coordinates = { lon, lat };
-        this.neighbors = [];
-    }
-    addNeighbor(neighborNode) {
-        if (!this.neighbors.includes(neighborNode)) {
-            this.neighbors.push(neighborNode);
-        }
-    }
-}
 
-// Only used for rendering paths
-class Path {
-    constructor(startNode, endNode, cost) {
-        this.startNode = startNode;
-        this.endNode = endNode;
-        this.cost = cost;
-    }
-}
+
+
 
 const heuristics = ["Haversine", "Euclidean", "Manhattan", "Diagonal"];
 const algorithms = ["astar", "dijkstra", "bfs"];
 
 function App() {
     const queryParams = new URLSearchParams(window.location.search);
-    const loadAllTraces = queryParams.get("loadAllTraces");
+    const loadAllTraces :number = parseInt(queryParams.get("loadAllTraces") || "");
 
-    const [traces, setTraces] = useState([]);
-    const [token, setToken] = useState(null);
+    const [traces, setTraces] = useState<any>([]);
+    const [token, setToken] = useState<boolean | null>(null);
 
     const [node1Name, setNode1Name] = useState("");
     const [node2Name, setNode2Name] = useState("");
@@ -59,7 +47,7 @@ function App() {
 
     const [heuristicType, setHeuristicType] = useState("Haversine");
 
-    const CalculateDistance = (node1, node2) => {
+    const CalculateDistance = (node1:Node, node2:Node) => {
         if (heuristicType == "Haversine") {
             return CalculateDistance_Haversine(node1, node2);
         } else if (heuristicType == "Euclidean") {
@@ -79,22 +67,26 @@ function App() {
         --------------------------------------------------------
     */
 
-    async function AStar(startNode, endNode, debug = false) {
+    async function AStar(startNode:Node, endNode:Node, debug = false) : Promise<PathfindResult | null>
+    {
         for (let node of gNodes) {
             if (node.parent) {
                 node.parent = null;
             }
         }
 
-        let openSet = [startNode];
-        let closedSet = [];
-        let gScore = {}; // Map to store the cost from start along best known path
-        let fScore = {}; // Map to store the estimated total cost from start to goal through a node
+        let openSet:Node[] = [startNode];
+        let closedSet:Node[] = [];
 
-        gScore[startNode] = 0;
-        fScore[startNode] = CalculateDistance(
-            startNode.coordinates,
-            endNode.coordinates
+        // let messageIdReference: { [key: string]: number } = {};
+
+        let gScore: {[key: number]: number} = {}; // Map to store the cost from start along best known path
+        let fScore:{[key: number]: number} = {}; // Map to store the estimated total cost from start to goal through a node
+
+        gScore[startNode.id] = 0;
+        fScore[startNode.id] = CalculateDistance(
+            startNode,
+            endNode
         );
 
         let aStarNodesTraversed = 0;
@@ -105,8 +97,8 @@ function App() {
             if (!debug) await sleep(1);
             setTotalNodesTraversed(aStarNodesTraversed);
 
-            let current = openSet.reduce((minNode, node) =>
-                fScore[node] < fScore[minNode] ? node : minNode
+            let current = openSet.reduce((minNode:Node, node:Node) =>
+                fScore[node.id] < fScore[minNode.id] ? node : minNode
             );
 
             if (current === endNode) {
@@ -127,23 +119,23 @@ function App() {
                 aStarNodesTraversed++;
 
                 let dist = CalculateDistance(
-                    current.coordinates,
-                    neighbor.coordinates
+                    current,
+                    neighbor
                 );
-                let tentativeGScore = gScore[current] + dist;
+                let tentativeGScore = gScore[current.id] + dist;
 
                 if (
                     !openSet.includes(neighbor) ||
-                    tentativeGScore < gScore[neighbor]
+                    tentativeGScore < gScore[neighbor.id]
                 ) {
                     neighbor.parent = current;
 
-                    gScore[neighbor] = tentativeGScore;
-                    fScore[neighbor] =
-                        gScore[neighbor] +
+                    gScore[neighbor.id] = tentativeGScore;
+                    fScore[neighbor.id] =
+                        gScore[neighbor.id] +
                         CalculateDistance(
-                            neighbor.coordinates,
-                            endNode.coordinates
+                            neighbor,
+                            endNode
                         );
 
                     if (!openSet.includes(neighbor)) {
@@ -156,7 +148,7 @@ function App() {
     }
 
     // Function to reconstruct the path from start to end
-    function reconstructPathAStar(currentNode) {
+    function reconstructPathAStar(currentNode: Node) {
         let count = 0;
         const path = [currentNode];
         while (currentNode.parent) {
@@ -175,10 +167,12 @@ function App() {
         --------------------------------------------------------
     */
 
-    async function dijkstra(startNode, endNode, debug = false) {
+    async function dijkstra(startNode:Node, endNode:Node, debug = false):Promise<PathfindResult |null> {
         // Initialize distances to all nodes as infinity except for the start node
-        let distances = {};
-        let previousNodes = {};
+
+        let distances: {[key: number]: number} = {};
+        let previousNodes: {[key: number]: Node | null} = {};
+
         gNodes.forEach((node) => {
             distances[node.id] = node === startNode ? 0 : Infinity;
             previousNodes[node.id] = null;
@@ -213,8 +207,8 @@ function App() {
                 dijkstraNodesTraversed++;
 
                 const dist = CalculateDistance(
-                    currentNode.coordinates,
-                    neighbor.coordinates
+                    currentNode,
+                    neighbor
                 );
 
                 const distanceToNeighbor = distances[currentNode.id] + dist;
@@ -228,9 +222,9 @@ function App() {
         return null; // No path found
     }
 
-    function reconstructPathDijkstra(endNode, previousNodes) {
+    function reconstructPathDijkstra(endNode:Node, previousNodes:{[key: number]: Node | null}) {
         const path = [];
-        let currentNode = endNode;
+        let currentNode:Node | null = endNode;
         while (currentNode) {
             path.unshift(currentNode);
             currentNode = previousNodes[currentNode.id];
@@ -245,10 +239,11 @@ function App() {
         --------------------------------------------------------
     */
 
-    async function breadthFirstSearch(startNode, endNode, debug = false) {
+    async function breadthFirstSearch(startNode:Node, endNode:Node, debug = false):Promise<PathfindResult |null> {
         const queue = [startNode];
         const visited = new Set();
-        const previousNodes = {};
+        
+        const previousNodes: {[key: number]: Node | null} = {};
 
         let bfsNodesTraversed = 0;
 
@@ -258,6 +253,7 @@ function App() {
             setTotalNodesTraversed(bfsNodesTraversed);
 
             const currentNode = queue.shift();
+            if(currentNode == undefined) return null;
 
             if (currentNode === endNode) {
                 return {
@@ -281,12 +277,12 @@ function App() {
     }
 
     // Reconstruct the shortest path from start node to end node
-    function reconstructPathBFS(startNode, endNode, previousNodes) {
-        const path = [];
-        let currentNode = endNode;
+    function reconstructPathBFS(startNode:Node, endNode:Node, previousNodes: {[key: number]: Node | null}) : Node[] {
+        const path: Node[] = [];
+        let currentNode:Node | null = endNode;
         while (currentNode !== startNode) {
-            path.unshift(currentNode);
-            currentNode = previousNodes[currentNode.id];
+            path.unshift(currentNode!);
+            currentNode = previousNodes[currentNode!.id];
         }
         path.unshift(startNode);
         RenderFinalPath(path, "red");
@@ -305,7 +301,7 @@ function App() {
         node2Selection = null;
     };
 
-    const onHeuristicChange = (e) => {
+    const onHeuristicChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         e.preventDefault();
         let type = e.target.value;
         if (!heuristics.includes(type)) {
@@ -318,7 +314,7 @@ function App() {
 
     const [algoType, setAlgoType] = useState("astar");
 
-    const onAlgorithmChange = (e) => {
+    const onAlgorithmChange = (e:React.ChangeEvent<HTMLSelectElement>) => {
         e.preventDefault();
         let type = e.target.value;
         if (!algorithms.includes(type)) {
@@ -329,11 +325,11 @@ function App() {
         ResetNav();
     };
 
-    function HotFixMissingPaths(startNodeID) {
+    function HotFixMissingPaths(startNodeID: number): [Node, Node] {
         // connect node 798 to 354
-        GetNodeById(798).addNeighbor(GetNodeById(354));
-        GetNodeById(354).addNeighbor(GetNodeById(798));
-        gPaths.push(new Path(GetNodeById(354), GetNodeById(798), -1));
+        GetNodeById(798)!.addNeighbor(GetNodeById(354)!);
+        GetNodeById(354)!.addNeighbor(GetNodeById(798)!);
+        gPaths.push(new Path(GetNodeById(354)!, GetNodeById(798)!, -1));
 
         // newNode1 += -37.8460620, 145.1136229
 
@@ -343,9 +339,9 @@ function App() {
         }
 
         // connect 601 to newNode1
-        GetNodeById(601).addNeighbor(newNode1);
-        newNode1.addNeighbor(GetNodeById(601));
-        gPaths.push(new Path(newNode1, GetNodeById(601), -1));
+        GetNodeById(601)!.addNeighbor(newNode1);
+        newNode1.addNeighbor(GetNodeById(601)!);
+        gPaths.push(new Path(newNode1, GetNodeById(601)!, -1));
 
         // newNode2 += -37.8461351, 145.1137048
         startNodeID++;
@@ -355,9 +351,9 @@ function App() {
         }
 
         // connect node HF/762 to newNode2
-        newNode2.addNeighbor(GetNodeById(762));
-        GetNodeById(762).addNeighbor(newNode2);
-        gPaths.push(new Path(newNode2, GetNodeById(762), -1));
+        newNode2.addNeighbor(GetNodeById(762)!);
+        GetNodeById(762)!.addNeighbor(newNode2);
+        gPaths.push(new Path(newNode2, GetNodeById(762)!, -1));
 
         // connect newNode1 to newNode2
         newNode1.addNeighbor(newNode2);
@@ -365,37 +361,42 @@ function App() {
         gPaths.push(new Path(newNode2, newNode1, -1));
 
         // connect HE/123 to newNode2
-        GetNodeById(123).addNeighbor(newNode2);
-        newNode2.addNeighbor(GetNodeById(123));
-        gPaths.push(new Path(newNode2, GetNodeById(123), -1));
+        GetNodeById(123)!.addNeighbor(newNode2);
+        newNode2.addNeighbor(GetNodeById(123)!);
+        gPaths.push(new Path(newNode2, GetNodeById(123)!, -1));
 
         // connect path near ground floor bus stop area
-        GetNodeById(406).addNeighbor(GetNodeById(401));
-        GetNodeById(401).addNeighbor(GetNodeById(406));
-        gPaths.push(new Path(GetNodeById(401), GetNodeById(406), -1));
+        GetNodeById(406)!.addNeighbor(GetNodeById(401)!);
+        GetNodeById(401)!.addNeighbor(GetNodeById(406)!);
+        gPaths.push(new Path(GetNodeById(401)!, GetNodeById(406)!, -1));
 
         return [newNode1, newNode2];
     }
 
-    const calculatePathCost = (path) => {
+    const calculatePathCost = (path: Node[]) => {
         let distance = 0;
         for (let i = 0; i < path.length - 1; i++) {
-            let node1 = {
-                lat: path[i].coordinates.lat,
-                lon: path[i].coordinates.lon,
-            };
-            let node2 = {
-                lat: path[i + 1].coordinates.lat,
-                lon: path[i + 1].coordinates.lon,
-            };
+            let node1 = path[i];
+            let node2 = path[i+1];
+            // let node1: Node = {
+            //     lat: path[i].coordinates.lat,
+            //     lon: path[i].coordinates.lon,
+            // };
+            // let node2: Node = {
+            //     lat: path[i + 1].coordinates.lat,
+            //     lon: path[i + 1].coordinates.lon,
+            // };
             distance += CalculateDistance_Haversine(node1, node2);
         }
 
         return distance;
     };
 
-    async function runTests(e) {
+    async function runTests(e:React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
+
+        ResetNav();
+        ResetTraces(true);
 
         if (
             !window.confirm(
@@ -405,26 +406,28 @@ function App() {
             return;
         }
 
-        let node1 = GetNodeById(92); // Building G
-        let node2 = GetNodeById(361); // Hungry jacks
+
+        
+
+        let node1 = GetNodeById(92)!; // Building G
+        let node2 = GetNodeById(361)!; // Hungry jacks
 
         const astarResult = await AStar(node1, node2, true);
         const dijkstraResult = await dijkstra(node1, node2, true);
         const bfsResult = await breadthFirstSearch(node1, node2, true);
-
-        const aStarDistance = calculatePathCost(astarResult.path);
-        const dijkstraDistance = calculatePathCost(dijkstraResult.path);
-        const bfsDistance = calculatePathCost(bfsResult.path);
+        const aStarDistance = calculatePathCost(astarResult!.path);
+        const dijkstraDistance = calculatePathCost(dijkstraResult!.path);
+        const bfsDistance = calculatePathCost(bfsResult!.path);
 
         let output = "";
         output += `A-Star:\nNodes Traversed: ${
-            astarResult.nodesTraversed
+            astarResult!.nodesTraversed
         }. Total Route Distance: ${aStarDistance.toFixed(2)}m\n\n`;
         output += `Dijkstra:\nNodes Traversed: ${
-            dijkstraResult.nodesTraversed
+            dijkstraResult!.nodesTraversed
         }. Total Route Distance: ${dijkstraDistance.toFixed(2)}m\n\n`;
         output += `Breadth-First Search:\nNodes Traversed: ${
-            bfsResult.nodesTraversed
+            bfsResult!.nodesTraversed
         }. Total Route Distance: ${bfsDistance.toFixed(2)}m\n\n`;
         console.log(output);
 
@@ -432,7 +435,7 @@ function App() {
         alert("Results can also be found in the developer console.");
     }
 
-    async function RenderFinalPath(path, color = "fuchsia") {
+    async function RenderFinalPath(path:Node[], color = "fuchsia") {
         let distance = 0;
         let routes = [];
         for (let i = 0; i < path.length - 1; i++) {
@@ -449,14 +452,10 @@ function App() {
 
             traces.push(newTrace);
             setTraces([...traces]);
-            let node1 = {
-                lat: path[i].coordinates.lat,
-                lon: path[i].coordinates.lon,
-            };
-            let node2 = {
-                lat: path[i + 1].coordinates.lat,
-                lon: path[i + 1].coordinates.lon,
-            };
+
+            let node1 = path[i ];
+            let node2 = path[i+1]
+  
             distance += CalculateDistance_Haversine(node1, node2);
             setPathDistance(distance);
             setPathNodeCount(path.length);
@@ -466,7 +465,7 @@ function App() {
         }
     }
 
-    function AddNewPath(node1, node2, color = "red", label = "") {
+    function AddNewPath(node1:Node, node2:Node, color = "red", label = "") {
         let newTrace = {
             type: "scattermapbox",
             mode: "lines",
@@ -488,7 +487,7 @@ function App() {
     // const layout = {
     const [layout, setLayout] = useState(GetPlotlyLayout(window));
 
-    function GetNodeById(id) {
+    function GetNodeById(id:number): Node | null {
         for (let node of gNodes) {
             if (node.id == id) {
                 return node;
@@ -516,8 +515,8 @@ function App() {
         }
 
         for (let path of paths) {
-            let node1 = GetNodeById(path.nodeID1);
-            let node2 = GetNodeById(path.nodeID2);
+            let node1 = GetNodeById(path.nodeID1)!;
+            let node2 = GetNodeById(path.nodeID2)!;
             if (!node1.neighbors.includes(node2)) {
                 node1.addNeighbor(node2);
             }
@@ -529,14 +528,14 @@ function App() {
             gPaths.push(newPath);
         }
 
-        let hotfix = HotFixMissingPaths();
+        let hotfix = HotFixMissingPaths(0);
         gNodes.push(...hotfix);
 
         // Only render nodes that contain a name/label, such as buildings
-        const labeledNodes = nodes.filter((node) => node.label.trim() !== "");
+        const labeledNodes = nodes.filter((node: any) => node.label.trim() !== "");
         // const labeledNodes = nodes;
 
-        nodeTraces = labeledNodes.map((node) => ({
+        nodeTraces = labeledNodes.map((node: NodeData) => ({
             type: "scattermapbox",
             mode: "markers",
             lon: [node.coordinate.long],
@@ -573,7 +572,7 @@ function App() {
         setToken(true);
     };
 
-    const renderAllTraces = (e) => {
+    const renderAllTraces = (e:React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (
             !window.confirm(
@@ -623,7 +622,7 @@ function App() {
         return newTraces;
     };
 
-    const onClick = (e) => {
+    const onClick = (e:any) => {
         let index = e.points[0].fullData.index;
         if (e.points[0].data.mode !== "markers") {
             console.log("not a marker");
@@ -662,7 +661,7 @@ function App() {
         }
     };
 
-    function DoPathFind(startNode, endNode) {
+    function DoPathFind(startNode:Node, endNode:Node) {
         // const startNode = GetNodeById(148); // Library
         // const endNode = GetNodeById(786); // OVAL
         if (algoType == "astar") {
@@ -676,7 +675,7 @@ function App() {
         }
     }
 
-    function GetNodeByCoord(lat, lon) {
+    function GetNodeByCoord(lat:number, lon:number) {
         for (let node of gNodes) {
             if (node.coordinates.lat == lat && node.coordinates.lon == lon) {
                 return node;
@@ -750,7 +749,7 @@ function App() {
             </div>
 
             <Plot
-                id="graph"
+                // id="graph"
                 data={traces}
                 layout={layout}
                 onUpdate={(figure) => setLayout(figure.layout)}
