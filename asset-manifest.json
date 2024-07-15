@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Wheelchair-Pathfinding/static/css/main.c96d0865.css",
+    "main.css": "/Wheelchair-Pathfinding/static/css/main.d5c28f33.css",
     "main.js": "/Wheelchair-Pathfinding/static/js/main.cad19a35.js",
     "index.html": "/Wheelchair-Pathfinding/index.html",
-    "main.c96d0865.css.map": "/Wheelchair-Pathfinding/static/css/main.c96d0865.css.map",
+    "main.d5c28f33.css.map": "/Wheelchair-Pathfinding/static/css/main.d5c28f33.css.map",
     "main.cad19a35.js.map": "/Wheelchair-Pathfinding/static/js/main.cad19a35.js.map"
   },
   "entrypoints": [
-    "static/css/main.c96d0865.css",
+    "static/css/main.d5c28f33.css",
     "static/js/main.cad19a35.js"
   ]
 }
